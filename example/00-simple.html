@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style type="text/css">
+        .box {
+            background-color: red;
+            height: 2rem;
+            width: 2rem;
+        }
+
+        .box.is-active {
+            margin-left: 8rem;
+            margin-top: 2rem;
+            height: 1.5rem;
+            width: 5rem;
+        }
+
+        .nob {
+            background: blue;
+            margin-top: 0.5rem;
+            height: 2rem;
+            width: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="example">
+        <div class="example__info">
+            <h1>Simple</h1>
+            <p>This is a simple example.</p>
+            <p>Yes it is.</p>
+        </div>
+        <div class="example__demo">
+            <div data-transistor class="box"></div>
+            <div data-transistor class="nob"></div>
+        </div>
+    </div>
+    <script src="../dist/transistor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // function wait(delay) {
+            //     return new Promise(function (resolve) {
+            //         setTimeout(resolve, delay);
+            //     });
+            // }
+
+            function foo() {
+                transistor(function () {
+                    document.querySelector('.box').classList.toggle('is-active', true);
+                }).then(bar);
+            }
+
+            function bar() {
+                // transistor(function () {
+                //     document.querySelector('.box').classList.toggle('is-active', false);
+                // }).then(foo);
+            }
+
+            setTimeout(foo, 500);
+
+        });
+    </script>
+</body>
+
+</html>
