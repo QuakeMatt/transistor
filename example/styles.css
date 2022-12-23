@@ -1,0 +1,52 @@
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+html {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.4;
+}
+
+iframe {
+    border: 0 none;
+    display: block;
+    height: 23.1rem;
+    width: 100%;
+}
+
+iframe + iframe {
+    border-top: 1px solid #dfdfdf;
+}
+
+.example {
+    display: flex;
+    height: 20rem;
+    margin: 1.5rem;
+}
+
+.example__info {
+    flex: 0 0 auto;
+    margin-right: 2rem;
+    width: 400px;
+}
+
+.example__info h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.example__info p {
+    font-size: 1.1rem;
+    margin: 0.5rem 0 0 0;
+}
+
+.example__demo {
+    flex: 1 1 auto;
+}

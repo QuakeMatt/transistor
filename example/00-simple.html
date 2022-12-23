@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style type="text/css">
+        .box {
+            background-color: red;
+            height: 2rem;
+            width: 2rem;
+            position: relative;
+        }
+
+        .box .foo {
+            background-color: green;
+            height: 1rem;
+            width: 1rem;
+        }
+
+        .box.is-active {
+            margin-left: 8rem;
+            margin-top: 2rem;
+            height: 1.5rem;
+            width: 5rem;
+        }
+
+        .box.is-active .foo {
+            height: 0.5rem;
+            width: 2rem;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .nob {
+            background: blue;
+            margin-top: 0.5rem;
+            height: 2rem;
+            width: 2rem;
+        }
+
+        [data-transistor] {
+            backface-visibility: visible; /* Chrome */
+            filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0)); /* Firefox */
+            /* transform-origin: 0 0; */
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="example">
+        <div class="example__info">
+            <h1>Simple</h1>
+            <p>This is a simple example.</p>
+            <p>Yes it is.</p>
+        </div>
+        <div class="example__demo">
+            <div data-transistor class="box">
+                <!-- 😊 -->
+                <!-- <div data-transistor class="foo"></div> -->
+                <!-- <div>
+                    <div data-transistor>
+                        <span>nested 1a</span>
+                        <span>nested 1b</span>
+                    </div>
+                    <div data-transistor>nested 2</div>
+                </div>
+                <div data-transistor>nested 3</div> -->
+            </div>
+            <div data-transistor class="nob"></div>
+        </div>
+    </div>
+    <script src="../dist/transistor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const transistor = window.transistor;
+
+            document.querySelectorAll('.example__demo').forEach(function (example) {
+                const factory = document.createElement('DIV');
+                factory.innerHTML = example.outerHTML;
+                factory.querySelectorAll('[data-transistor]').forEach(e => e.removeAttribute('data-attribute'));
+                example.parentElement.append(...factory.childNodes);
+            });
+
+            setTimeout(foo, 500);
+
+            // function wait(delay) {
+            //     return new Promise(function (resolve) {
+            //         setTimeout(resolve, delay);
+            //     });
+            // }
+
+            function foo() {
+                // document.querySelector('.box').classList.toggle('is-active', true);
+                transistor(function () {
+                    document.querySelectorAll('.box').forEach(function (element) {
+                        element.classList.toggle('is-active', true);
+                    });
+                });
+                // setTimeout(bar, 1500);
+            }
+
+            function bar() {
+                // document.querySelector('.box').classList.toggle('is-active', false);
+                transistor(function () {
+                    document.querySelectorAll('.box').forEach(function (element) {
+                        element.classList.toggle('is-active', false);
+                    });
+                });
+                // setTimeout(foo, 1500);
+            }
+
+            // let wimple = 100;
+
+            // function tick(time) {
+            //     console.log([performance.now(), time]);
+            //     if (0 < --wimple) {
+            //         requestAnimationFrame(tick);
+            //     }
+            // }
+
+            // requestAnimationFrame(tick);
+
+        });
+    </script>
+</body>
+
+</html>

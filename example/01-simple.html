@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style type="text/css">
+        .box-container {
+            outline: 1px solid black;
+            display: inline-block;
+            height: 4rem;
+            width: 4rem;
+            padding: 1rem;
+            vertical-align: top;
+        }
+
+        .box {
+            background-color: red;
+            height: 2rem;
+            width: 2rem;
+            position: relative;
+        }
+
+        [data-transistor] {
+            backface-visibility: visible; /* Chrome */
+            filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0)); /* Firefox */
+            transform-origin: 0 0;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="example">
+        <div class="example__info">
+            <h1>Simple</h1>
+            <p>This is a simple example.</p>
+            <p>Yes it is.</p>
+        </div>
+        <div class="example__demo">
+            <div class="box-container">
+                <div data-transistor class="box"></div>
+            </div>
+            <div class="box-container"></div>
+        </div>
+    </div>
+    <script src="../dist/transistor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const transistor = window.transistor;
+
+            document.querySelectorAll('.example__demo').forEach(function (example) {
+                const factory = document.createElement('DIV');
+                factory.innerHTML = example.outerHTML;
+                factory.querySelectorAll('[data-transistor]').forEach(e => e.removeAttribute('data-attribute'));
+                example.parentElement.append(...factory.childNodes);
+            });
+
+            setTimeout(foo, 500);
+
+            // function wait(delay) {
+            //     return new Promise(function (resolve) {
+            //         setTimeout(resolve, delay);
+            //     });
+            // }
+
+            function foo() {
+                // document.querySelector('.box').classList.toggle('is-active', true);
+                transistor(function () {
+                    document.querySelectorAll('.box').forEach(function (element) {
+                        const containers = element.closest('.example__demo').querySelectorAll('.box-container');
+                        containers.item(1).append(element);
+                    });
+                });
+                // setTimeout(bar, 1500);
+            }
+
+            function bar() {
+                // document.querySelector('.box').classList.toggle('is-active', false);
+                transistor(function () {
+                    document.querySelectorAll('.box').forEach(function (element) {
+                        const containers = element.closest('.example__demo').querySelectorAll('.box-container');
+                        containers.item(0).append(element);
+                    });
+                });
+                // setTimeout(foo, 1500);
+            }
+
+            // let wimple = 100;
+
+            // function tick(time) {
+            //     console.log([performance.now(), time]);
+            //     if (0 < --wimple) {
+            //         requestAnimationFrame(tick);
+            //     }
+            // }
+
+            // requestAnimationFrame(tick);
+
+        });
+    </script>
+</body>
+
+</html>

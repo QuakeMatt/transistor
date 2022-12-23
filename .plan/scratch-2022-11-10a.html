@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <main>
+        <div class="product-card" data-transistor>
+            <img class="product-card__image"/>
+            <h2 class="product-card__title">Product</h2>
+            <p class="product-card__info">What a nice product!</p>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            transistor.flip(function ($) {
+
+                const card = document.querySelector('.product-card');
+
+                card.classList.add('fullscreen');
+                document.body.append(card);
+
+                // delay all transitions
+                $.delay = 100;
+
+                // set `card` transition duration
+                $(card).duration = 400;
+
+                $(card).easing = $.EASE_OUT;
+
+                // set `card` scale durations
+                $(card).scale.duration = 600;
+
+                $(card).scale.x.duration = true;
+
+                $('.product-card__bullet-point').stagger = 100;
+                $([elem1, elem2, elem3, elem4]).stagger = 100;
+                $(elem1, elem2, elem3, elem4).stagger = 100;
+
+
+                // $('.product-card__image').scale.proportional = true;
+                // $().
+
+            });
+
+        });
+    </script>
+</body>
+
+</html>
