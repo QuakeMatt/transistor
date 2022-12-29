@@ -21,20 +21,20 @@
             width: 1rem;
         }
 
-        .box.is-active {
+        /* .box.is-active {
             margin-left: 8rem;
             margin-top: 2rem;
             height: 1.5rem;
             width: 5rem;
-        }
+        } */
 
-        .box.is-active .foo {
+        /* .box.is-active .foo {
             height: 0.5rem;
             width: 2rem;
             position: absolute;
             bottom: 0;
             right: 0;
-        }
+        } */
 
         .nob {
             background: blue;
@@ -46,7 +46,6 @@
         [data-transistor] {
             backface-visibility: visible; /* Chrome */
             filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0)); /* Firefox */
-            /* transform-origin: 0 0; */
         }
 
     </style>
@@ -99,21 +98,47 @@
             function foo() {
                 // document.querySelector('.box').classList.toggle('is-active', true);
                 transistor(function () {
-                    document.querySelectorAll('.box').forEach(function (element) {
-                        element.classList.toggle('is-active', true);
+                    document.querySelectorAll('.box').forEach(function (/** @type {HTMLElement} */ box) {
+                        box.style.marginLeft = '8rem';
+                        box.style.height = '1rem';
+                        box.style.width = '8rem';
                     });
                 });
-                // setTimeout(bar, 1500);
+                setTimeout(bar, 500);
             }
 
             function bar() {
                 // document.querySelector('.box').classList.toggle('is-active', false);
                 transistor(function () {
-                    document.querySelectorAll('.box').forEach(function (element) {
-                        element.classList.toggle('is-active', false);
+                    document.querySelectorAll('.box').forEach(function (/** @type {HTMLElement} */ box) {
+                        box.style.marginTop = '4rem';
+                        box.style.height = '4rem';
+                        box.style.width = '1rem';
                     });
                 });
-                // setTimeout(foo, 1500);
+                setTimeout(unfoo, 500);
+            }
+
+            function unfoo() {
+                // document.querySelector('.box').classList.toggle('is-active', true);
+                transistor(function () {
+                    document.querySelectorAll('.box').forEach(function (/** @type {HTMLElement} */ box) {
+                        box.style.marginLeft = '';
+                        box.style.height = '';
+                        box.style.width = '';
+                    });
+                });
+                setTimeout(unbar, 500);
+            }
+
+            function unbar() {
+                // document.querySelector('.box').classList.toggle('is-active', false);
+                transistor(function () {
+                    document.querySelectorAll('.box').forEach(function (/** @type {HTMLElement} */ box) {
+                        box.style.marginTop = '';
+                    });
+                });
+                // setTimeout(foo, 500);
             }
 
             // let wimple = 100;

@@ -1,8 +1,15 @@
+import { createBezierEasing } from "./BezierEasing";
 import { Graph, GraphNode } from "./Graph";
-import { TweenMap } from "./Tween";
+import { createRectangle, Rectangle } from "./Rectangle";
+import { Tween, TweenMap } from "./Tween";
 
 export interface Process {
-    tick: (time: DOMHighResTimeStamp) => void;
+    // tick: (time: DOMHighResTimeStamp) => void;
+    hasFinished: (time: DOMHighResTimeStamp) => boolean;
+    getTransform: (element: HTMLElement, time: DOMHighResTimeStamp) => Rectangle | null;
+    // getTween: (element: HTMLElement) => Tween | null;
+    // getTweens: () => TweenMap;
+    tweens: TweenMap;
 }
 
 export function createProcess(
@@ -17,22 +24,44 @@ export function createProcess(
 
     // transformGraph(0);
 
+    const endTime = startTime + 1000.0;
+
+    const bezierEasing = createBezierEasing(0.25, 0.1, 0.25, 1.0);
+
     return {
-        tick,
+        hasFinished,
+        getTransform,
+        // getTween,
+        tweens,
     };
+
+    function hasFinished(time: DOMHighResTimeStamp): boolean {
+        return time > endTime;
+    }
 
     function ease(elapsed: number, duration: number) {
         const x = Math.max(0.0, Math.min(elapsed / duration, 1.0));
-        return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+        return bezierEasing(x);
+        // return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
     }
 
-    function transformNode(node: GraphNode, elapsed: number): void {
+    function getTweens(): TweenMap {
+        return tweens;
+    }
 
-        const tween = tweens.get(node.element);
+    function getTween(element: HTMLElement): Tween | null {
+        return tweens.get(element) ?? null;
+    }
+
+    function getTransform(element: HTMLElement, time: DOMHighResTimeStamp): Rectangle | null {
+
+        const tween = tweens.get(element);
 
         if (null == tween) {
-            return;
+            return null;
         }
+
+        const elapsed = time - startTime;
 
         const start = tween.startSnapshot;
         const final = tween.finalSnapshot;
@@ -54,32 +83,34 @@ export function createProcess(
         const tw = (start.rectangle.width / final.rectangle.width) * invgress + progress;
         const th = (start.rectangle.height / final.rectangle.height) * invgress + progress;
 
-        const ox = final.origin.x / final.rectangle.width;
-        const wx = (final.rectangle.width - start.rectangle.width) * ox;
-        tx = tx - wx * invgress;
+        // const ox = final.origin.x / final.rectangle.width;
+        // const wx = (final.rectangle.width - start.rectangle.width) * ox;
+        // tx = tx - wx * invgress;
 
-        const oy = final.origin.y / final.rectangle.height;
-        const wy = (final.rectangle.height - start.rectangle.height) * oy;
-        ty = ty - wy * invgress;
+        // const oy = final.origin.y / final.rectangle.height;
+        // const wy = (final.rectangle.height - start.rectangle.height) * oy;
+        // ty = ty - wy * invgress;
 
-        node.element.style.transform = `translate3d(${tx}px, ${ty}px, 1px) scale(${tw}, ${th})`;
+        return createRectangle(tx, ty, tw, th);
 
-        transformNodeChildren(node, elapsed);
+        // node.element.style.transform = `translate3d(${tx}px, ${ty}px, 1px) scale(${tw}, ${th})`;
+
+        // transformNodeChildren(node, elapsed);
         // console.log('transformNode', {node, tween});
     }
 
-    function transformNodeChildren(node: GraphNode, elapsed: number): void {
-        node.children.forEach(node => transformNode(node, elapsed));
-    }
+    // function transformNodeChildren(node: GraphNode, elapsed: number): void {
+    //     node.children.forEach(node => transformNode(node, elapsed));
+    // }
 
-    function transformGraph(elapsed: number): void {
-        transformNodeChildren(graph.rootNode, elapsed);
-    }
+    // function transformGraph(elapsed: number): void {
+    //     transformNodeChildren(graph.rootNode, elapsed);
+    // }
 
-    function tick(time: DOMHighResTimeStamp): void {
-        // startTime = startTime ?? time;
-        transformGraph(time - startTime);
-        // transformGraph(0.0);
-    }
+    // function tick(time: DOMHighResTimeStamp): void {
+    //     // startTime = startTime ?? time;
+    //     transformGraph(time - startTime);
+    //     // transformGraph(0.0);
+    // }
 
 }

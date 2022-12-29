@@ -1,6 +1,6 @@
 import { Snapshot } from "./Snapshot";
 
-export type TweenMap = Map<Element, Tween | null>;
+export type TweenMap = Map<HTMLElement, Tween>;
 
 export interface Tween {
     startSnapshot: Snapshot,
