@@ -47,10 +47,29 @@ iframe + iframe {
     margin: 0.5rem 0 0 0;
 }
 
+.example__info button {
+    background: dodgerblue;
+    border: 0 none;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 600;
+    padding: 0.5em 1em;
+}
+
 .example__demo {
     flex: 1 1 auto;
 }
 
 [data-transistor] {
     transform-origin: 0 0;
+}
+
+@media (prefers-color-scheme: dark) {
+
+    html {
+        background-color: #1b1b1b;
+        color: #dfdfdf;
+    }
 }

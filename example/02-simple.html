@@ -39,21 +39,6 @@
             width: 2rem;
         }
 
-        .baz {
-            background-color: silver;
-            height: 4rem;
-            width: 1rem;
-            position: absolute;
-            left: 4rem;
-            top: 0;
-            z-index: 1;
-        }
-
-        .foo.foo.is-active + .baz {
-            /* left: 9rem;
-            top: 5rem; */
-        }
-
     </style>
 </head>
 
@@ -68,7 +53,6 @@
             <div data-transistor class="foo">
                 <div data-transistor class="bar"></div>
             </div>
-            <!-- <div data-transistor class="baz"></div> -->
         </div>
     </div>
     <script src="../dist/transistor.js"></script>

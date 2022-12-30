@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="./styles.css">
     <style type="text/css">
         .box-container {
-            outline: 1px solid black;
+            outline: 1px solid currentColor;
             display: inline-block;
             height: 4rem;
             width: 4rem;
@@ -17,17 +17,19 @@
             vertical-align: top;
         }
 
+        .box-container:not(:empty) {
+            margin-top: 1rem;
+        }
+
+        .box-container + .box-container:not(:empty) {
+            margin-top: 3rem;
+        }
+
         .box {
             background-color: red;
             height: 2rem;
             width: 2rem;
             position: relative;
-        }
-
-        [data-transistor] {
-            backface-visibility: visible; /* Chrome */
-            filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0)); /* Firefox */
-            transform-origin: 0 0;
         }
 
     </style>
@@ -39,12 +41,11 @@
             <h1>Simple</h1>
             <p>This is a simple example.</p>
             <p>Yes it is.</p>
+            <p><button id="transistor-toggle">Toggle</button></p>
         </div>
         <div class="example__demo">
-            <div class="box-container">
-                <div data-transistor class="box"></div>
-            </div>
-            <div class="box-container"></div>
+            <div class="box-container" data-transistor><div data-transistor class="box"></div></div>
+            <div class="box-container" data-transistor></div>
         </div>
     </div>
     <script src="../dist/transistor.js"></script>
@@ -53,14 +54,20 @@
 
             const transistor = window.transistor;
 
+            let iteration = 0;
+
             document.querySelectorAll('.example__demo').forEach(function (example) {
                 const factory = document.createElement('DIV');
                 factory.innerHTML = example.outerHTML;
-                factory.querySelectorAll('[data-transistor]').forEach(e => e.removeAttribute('data-attribute'));
+                factory.querySelectorAll('[data-transistor]').forEach(e => e.removeAttribute('data-transistor'));
                 example.parentElement.append(...factory.childNodes);
             });
 
-            setTimeout(foo, 500);
+            document.querySelector('#transistor-toggle').addEventListener('click', function () {
+                (++iteration & 1) ? foo() : bar();
+            });
+
+            // setTimeout(foo, 500);
 
             // function wait(delay) {
             //     return new Promise(function (resolve) {

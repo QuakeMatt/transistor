@@ -148,7 +148,7 @@ export function createTransistor(root: HTMLElement): Transistor {
     }
 
     function transformGraph(time: DOMHighResTimeStamp): void {
-        transformNodeChildren(graph.rootNode, time, getRootState());
+        transformNodeChildren(graph.getRoot(), time, getRootState());
     }
 
     function resetTransforms(): void {

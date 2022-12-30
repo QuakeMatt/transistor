@@ -51,7 +51,7 @@ const SELECTOR = '[data-transistor]';
 type Mungus = (node: GraphNode) => void;
 
 export interface Graph {
-    readonly rootNode: GraphNode;
+    readonly getRoot: () => GraphNode;
     readonly forEach: (callback: Mungus) => void;
 }
 
@@ -90,7 +90,18 @@ function generateGraph(root: HTMLElement): GraphNode {
 
 export function createGraph(root: HTMLElement): Graph {
 
-    const rootNode = generateGraph(root);
+    let rootNode: GraphNode | null = null;
+
+    // const rootNode = generateGraph(root);
+
+    const observer = new MutationObserver(onMutate);
+
+    const observerOptions: MutationObserverInit = {
+        subtree: true,
+        childList: true,
+        attributes: false,
+        characterData: false,
+    };
 
 
     // console.log(generateGraph(root));
@@ -103,16 +114,37 @@ export function createGraph(root: HTMLElement): Graph {
     // }
 
     return {
-        rootNode,
+        getRoot,
         forEach,
     };
+
+    function getRoot(): GraphNode {
+
+        if (rootNode) {
+            return rootNode;
+        }
+
+        console.log('Regenerating graph...');
+
+        observer.observe(root, observerOptions);
+
+        return rootNode = generateGraph(root);
+
+    }
+
+    function onMutate(mutations: MutationRecord[], observer: MutationObserver): void {
+        // console.log(`there are ${mutations.length} mutations`);
+        // mutations.forEach(m => console.log(m));
+        observer.disconnect();
+        rootNode = null;
+    }
 
     function forEach(callback: Mungus) {
 
         (function cb(node: GraphNode) {
             callback(node);
             node.children.forEach(cb);
-        })(rootNode);
+        })(getRoot());
 
     }
 
