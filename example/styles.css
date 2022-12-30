@@ -51,6 +51,6 @@ iframe + iframe {
     flex: 1 1 auto;
 }
 
-/* [data-transistor] {
+[data-transistor] {
     transform-origin: 0 0;
-} */
+}

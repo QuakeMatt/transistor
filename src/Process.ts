@@ -10,6 +10,7 @@ export interface Process {
     // getTween: (element: HTMLElement) => Tween | null;
     // getTweens: () => TweenMap;
     tweens: TweenMap;
+    startTime: DOMHighResTimeStamp;
 }
 
 export function createProcess(
@@ -27,12 +28,16 @@ export function createProcess(
     const endTime = startTime + 1000.0;
 
     const bezierEasing = createBezierEasing(0.25, 0.1, 0.25, 1.0);
+    // const bezierEasing = function (x: number): number {
+    //     return x;
+    // };
 
     return {
         hasFinished,
         getTransform,
         // getTween,
         tweens,
+        startTime,
     };
 
     function hasFinished(time: DOMHighResTimeStamp): boolean {
@@ -83,6 +88,9 @@ export function createProcess(
         const tw = (start.rectangle.width / final.rectangle.width) * invgress + progress;
         const th = (start.rectangle.height / final.rectangle.height) * invgress + progress;
 
+        const sw = (start.rectangle.width - final.rectangle.width) * invgress;
+        const sh = (start.rectangle.height - final.rectangle.height) * invgress;
+
         // const ox = final.origin.x / final.rectangle.width;
         // const wx = (final.rectangle.width - start.rectangle.width) * ox;
         // tx = tx - wx * invgress;
@@ -91,7 +99,7 @@ export function createProcess(
         // const wy = (final.rectangle.height - start.rectangle.height) * oy;
         // ty = ty - wy * invgress;
 
-        return createRectangle(tx, ty, tw, th);
+        return createRectangle(tx, ty, sw, sh);
 
         // node.element.style.transform = `translate3d(${tx}px, ${ty}px, 1px) scale(${tw}, ${th})`;
 

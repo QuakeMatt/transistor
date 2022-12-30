@@ -2,7 +2,7 @@ import { createGraph, Graph, GraphNode } from "./Graph";
 import { createPointFromString } from "./Point";
 import { Process } from "./Process";
 import { createProcessBuilder, ProcessBuilder } from "./ProcessBuilder";
-import { createRectangle } from "./Rectangle";
+import { createRectangle, Rectangle } from "./Rectangle";
 import { Snapshot } from "./Snapshot";
 
 export type FlipFunction = () => void;
@@ -11,7 +11,15 @@ export interface Transistor {
     prepare: () => void;
     execute: () => void;
     flip: (mutate: FlipFunction) => void;
+    startDebug: () => void;
 }
+
+interface ParentState {
+    rectangle: Rectangle;
+    transform: Rectangle;
+}
+
+let DEBUG = false;
 
 export function createTransistor(root: HTMLElement): Transistor {
 
@@ -35,90 +43,123 @@ export function createTransistor(root: HTMLElement): Transistor {
         prepare,
         execute,
         flip,
+        startDebug,
     };
 
-    function transformNode(node: GraphNode, time: DOMHighResTimeStamp): void {
+    function startDebug(): void {
+        DEBUG = true;
+    }
 
-        // const transforms = processes.map(p => p.getTransform(node.element, time));
-
-        // if (0 === transforms.length) {
-        //     transforms.push(TRANSFORM_IDENTITY);
-        // }
+    function transformNode(node: GraphNode, time: DOMHighResTimeStamp, parent: ParentState): void {
 
         const element = node.element;
-
-        let tx = TRANSFORM_IDENTITY.x;
-        let ty = TRANSFORM_IDENTITY.y;
-
-        let tw = TRANSFORM_IDENTITY.width;
-        let th = TRANSFORM_IDENTITY.height;
-
-        processes.forEach(function (process) {
-
-            const transform = process.getTransform(element, time);
-            // const transform = process.getTransform(element, 0.0);
-
-            if (null == transform) {
-                return;
-            }
-
-            tx += transform.x;
-            ty += transform.y;
-
-            tw *= transform.width;
-            th *= transform.height;
-
-        });
 
         const final = snapshots.get(element);
         if (final == null) {
             return;
         }
 
-        // const gah = final.origin.x / final.rectangle.width
-        // const wah = final.origin.x;
-        // const bah = wah * tw;
+        DEBUG && console.group(element.className);
 
-        // console.log({element, final, tx, tw, wah, bah});
+        // let tx = TRANSFORM_IDENTITY.x;
+        // let ty = TRANSFORM_IDENTITY.y;
 
-        tx += tw * final.origin.x - final.origin.x;
-        ty += th * final.origin.y - final.origin.y;
+        // let dx = (parent.rectangle.x - final.rectangle.x);
+        // let dy = (parent.rectangle.y - final.rectangle.y);
 
+        // let kx = dx * parent.transform.width - dx;
+        // let ky = dy * parent.transform.height - dy;
 
+        // let tx = (0.0 - parent.transform.x + kx) / parent.transform.width;
+        // let ty = (0.0 - parent.transform.y + ky) / parent.transform.height;
 
+        // let tw = 1.0 / parent.transform.width;
+        // let th = 1.0 / parent.transform.height;
 
+        // identity translate
+        let tx = 0.0;
+        let ty = 0.0;
 
+        // identity scale
+        let tw = 1.0;
+        let th = 1.0;
 
+        // reverse parent translate
+        tx = tx - parent.transform.x / parent.transform.width;
+        ty = ty - parent.transform.y / parent.transform.height;
 
-        // const process = processes[0];
+        // reverse parent scale
+        tw = tw / parent.transform.width;
+        th = th / parent.transform.height;
 
-        // const transform = process.getTransform(node.element, time) ?? TRANSFORM_IDENTITY;
+        let dx = final.rectangle.x - parent.rectangle.x;
+        let dy = final.rectangle.y - parent.rectangle.y;
 
-        // console.log({node, transform});
+        tx = tx + dx / parent.transform.width - dx;
+        ty = ty + dy / parent.transform.height - dy;
 
-        // const tx = transform.x;
-        // const ty = transform.y;
+        DEBUG && console.log({element, final, parent});
+        // DEBUG && console.log({dx, dy});
 
-        // const tw = transform.width;
-        // const th = transform.height;
+        processes.forEach(function (process) {
 
+            const transform = process.getTransform(element, time);
+            // const transform = process.getTransform(element, DEBUG ? 0.0 : time);
+            // const transform = process.getTransform(element, 0.0);
 
+            if (null == transform) {
+                return;
+            }
 
-        node.element.style.transform = `translate3d(${tx}px, ${ty}px, 1px) scale(${tw}, ${th})`;
+            tx += transform.x / parent.transform.width;
+            ty += transform.y / parent.transform.height;
 
-        transformNodeChildren(node, time);
+            // tw *= transform.width;
+            // th *= transform.height;
+
+            const sw = transform.width / final.rectangle.width;
+            const sh = transform.height / final.rectangle.height;
+
+            tw += sw;
+            th += sh;
+
+            DEBUG && console.log({transform, sw, sh});
+
+        });
+
+        // tx += tw * final.origin.x - final.origin.x;
+        // ty += th * final.origin.y - final.origin.y;
+
+        // node.element.style.transform = `translate3d(${tx}px, ${ty}px, 1px) scale(${tw}, ${th})`;
+        node.element.style.transform = `translate(${tx}px, ${ty}px) scale(${tw}, ${th})`;
+
+        const newParent: ParentState = {
+            rectangle: final.rectangle,
+            transform: createRectangle(tx, ty, tw, th),
+        };
+
+        DEBUG && console.groupEnd();
+
+        transformNodeChildren(node, time, newParent);
     }
 
-    function transformNodeChildren(node: GraphNode, time: DOMHighResTimeStamp): void {
-        node.children.forEach(node => transformNode(node, time));
+    function transformNodeChildren(node: GraphNode, time: DOMHighResTimeStamp, parent: ParentState): void {
+        node.children.forEach(node => transformNode(node, time, parent));
     }
 
     function transformGraph(time: DOMHighResTimeStamp): void {
-        transformNodeChildren(graph.rootNode, time);
+        transformNodeChildren(graph.rootNode, time, getRootState());
     }
 
     function resetTransforms(): void {
         graph.forEach(node => node.element.style.transform = '');
+    }
+
+    function getRootState(): ParentState {
+        return {
+            rectangle: TRANSFORM_IDENTITY,
+            transform: TRANSFORM_IDENTITY,
+        };
     }
 
     function tick(time: DOMHighResTimeStamp): void {
@@ -136,6 +177,7 @@ export function createTransistor(root: HTMLElement): Transistor {
         if (0 < processes.length) {
             // console.log('process tick', Date.now());
             transformGraph(time);
+            DEBUG && (rAFID = 1); // STOP TICK PROCESSES
         }
 
         const running = processes.filter(function (p) {
