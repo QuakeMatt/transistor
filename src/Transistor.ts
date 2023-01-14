@@ -98,6 +98,9 @@ export function createTransistor(root: HTMLElement): Transistor {
         tx = tx + dx / parent.transform.width - dx;
         ty = ty + dy / parent.transform.height - dy;
 
+        // opacity
+        let opacity = final.opacity;
+
         DEBUG && console.log({element, final, parent});
         // DEBUG && console.log({dx, dy});
 
@@ -123,6 +126,8 @@ export function createTransistor(root: HTMLElement): Transistor {
             tw += sw;
             th += sh;
 
+            opacity += process.getOpacity(element, time);
+
             DEBUG && console.log({transform, sw, sh});
 
         });
@@ -131,6 +136,7 @@ export function createTransistor(root: HTMLElement): Transistor {
         // ty += th * final.origin.y - final.origin.y;
 
         // node.element.style.transform = `translate3d(${tx}px, ${ty}px, 1px) scale(${tw}, ${th})`;
+        node.element.style.opacity = '' + Math.max(0, Math.min(opacity, 1));
         node.element.style.transform = `translate(${tx}px, ${ty}px) scale(${tw}, ${th})`;
 
         const newParent: ParentState = {
@@ -152,7 +158,10 @@ export function createTransistor(root: HTMLElement): Transistor {
     }
 
     function resetTransforms(): void {
-        graph.forEach(node => node.element.style.transform = '');
+        graph.forEach(function (node) {
+            node.element.style.opacity = '';
+            node.element.style.transform = '';
+        });
     }
 
     function getRootState(): ParentState {

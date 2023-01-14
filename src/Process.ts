@@ -6,6 +6,7 @@ import { Tween, TweenMap } from "./Tween";
 export interface Process {
     // tick: (time: DOMHighResTimeStamp) => void;
     hasFinished: (time: DOMHighResTimeStamp) => boolean;
+    getOpacity: (element: HTMLElement, time: DOMHighResTimeStamp) => number;
     getTransform: (element: HTMLElement, time: DOMHighResTimeStamp) => Rectangle | null;
     // getTween: (element: HTMLElement) => Tween | null;
     // getTweens: () => TweenMap;
@@ -34,6 +35,7 @@ export function createProcess(
 
     return {
         hasFinished,
+        getOpacity,
         getTransform,
         // getTween,
         tweens,
@@ -105,6 +107,23 @@ export function createProcess(
 
         // transformNodeChildren(node, elapsed);
         // console.log('transformNode', {node, tween});
+    }
+
+    function getOpacity(element: HTMLElement, time: DOMHighResTimeStamp): number {
+
+        const tween = tweens.get(element);
+
+        if (null == tween) {
+            return 0.0;
+        }
+
+        const elapsed = time - startTime;
+
+        const start = tween.startSnapshot;
+        const final = tween.finalSnapshot;
+
+        return (start.opacity - final.opacity) * (1.0 - ease(elapsed, 1000));
+
     }
 
     // function transformNodeChildren(node: GraphNode, elapsed: number): void {

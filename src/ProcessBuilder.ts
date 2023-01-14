@@ -1,6 +1,7 @@
 import { Graph } from "./Graph";
 import { createProcess, Process } from "./Process";
-import { createSnapshot } from "./Snapshot";
+import { createRectangle } from "./Rectangle";
+import { createSnapshot, createSnapshotFromElement, Snapshot } from "./Snapshot";
 import { SnapshotsMap } from "./SnapshotsMap";
 import { createTween, TweenMap } from "./Tween";
 
@@ -14,7 +15,7 @@ export function createProcessBuilder(graph: Graph): ProcessBuilder {
     const finalSnapshots: SnapshotsMap = new Map();
 
     graph.forEach(function (node) {
-        startSnapshots.set(node.element, createSnapshot(node.element));
+        startSnapshots.set(node.element, createSnapshotFromElement(node.element));
         finalSnapshots.set(node.element, undefined);
     });
 
@@ -25,7 +26,8 @@ export function createProcessBuilder(graph: Graph): ProcessBuilder {
     function build(time: DOMHighResTimeStamp): Process {
 
         graph.forEach(function (node) {
-            finalSnapshots.set(node.element, createSnapshot(node.element));
+            console.log({node});
+            finalSnapshots.set(node.element, createSnapshotFromElement(node.element));
         });
 
         return createProcess(time, graph, createTweens());
@@ -37,12 +39,37 @@ export function createProcessBuilder(graph: Graph): ProcessBuilder {
         const tweens: TweenMap = new Map();
 
         for (const element of finalSnapshots.keys()) {
-            const startSnapshot = startSnapshots.get(element);
+
             const finalSnapshot = finalSnapshots.get(element);
-            startSnapshot && finalSnapshot && tweens.set(element, createTween(startSnapshot, finalSnapshot));
+            if (null == finalSnapshot) {
+                continue;
+            }
+
+            const startSnapshot = extrapolateSnapshot(finalSnapshot, startSnapshots.get(element));
+            tweens.set(element, createTween(startSnapshot, finalSnapshot));
         }
 
         return tweens;
+
+    }
+
+    function extrapolateSnapshot(finalSnapshot: Snapshot, startSnapshot: Snapshot | undefined): Snapshot {
+
+        if (startSnapshot) {
+            return startSnapshot;
+        }
+
+        return createSnapshot(
+            // createRectangle(
+            //     finalSnapshot.rectangle.x,
+            //     finalSnapshot.rectangle.y,
+            //     finalSnapshot.rectangle.width * 0.5,
+            //     finalSnapshot.rectangle.height * 0.5,
+            // ),
+            finalSnapshot.rectangle,
+            0.0,
+            finalSnapshot.origin
+        );
 
     }
 

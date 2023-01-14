@@ -121,7 +121,9 @@ export function createGraph(root: HTMLElement): Graph {
     function getRoot(): GraphNode {
 
         if (rootNode) {
-            return rootNode;
+            return (0 < observer.takeRecords().length)
+                ? (rootNode = generateGraph(root))
+                : rootNode;
         }
 
         console.log('Regenerating graph...');
@@ -133,6 +135,7 @@ export function createGraph(root: HTMLElement): Graph {
     }
 
     function onMutate(mutations: MutationRecord[], observer: MutationObserver): void {
+        console.log('onMutate');
         // console.log(`there are ${mutations.length} mutations`);
         // mutations.forEach(m => console.log(m));
         observer.disconnect();

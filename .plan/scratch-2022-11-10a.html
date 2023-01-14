@@ -49,6 +49,34 @@
 
             });
 
+            transistor.flip(function (t) {
+
+                const card = document.querySelector('.product-card');
+
+                // set defaults
+                t.tween({
+                    delay: 100,
+                    duration: 400,
+                    ease: t.EASE,
+                });
+
+                // ...
+                t(card).tween({
+                    duration: 800,
+                    ease: t.EASE_OUT,
+                });
+
+                // ...
+                t.after('.item').tween({
+                    stagger: 100,
+                });
+
+            });
+
+            (function () {
+
+            })();
+
         });
     </script>
 </body>

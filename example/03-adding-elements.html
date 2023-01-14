@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style type="text/css">
+        .example__demo {
+            position: relative;
+        }
+
+        .foo {
+            background-color: red;
+            height: 4rem;
+            width: 4rem;
+        }
+
+        .foo + .foo {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="example">
+        <div class="example__info">
+            <h1>Adding Elements</h1>
+            <p>An element is added.</p>
+        </div>
+        <div class="example__demo">
+            <div data-transistor class="foo"></div>
+        </div>
+    </div>
+    <script src="../dist/transistor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const transistor = window.transistor;
+
+            document.querySelectorAll('.example__demo').forEach(function (example) {
+                const factory = document.createElement('DIV');
+                factory.innerHTML = example.outerHTML;
+                factory.querySelectorAll('[data-transistor]').forEach(e => e.removeAttribute('data-transistor'));
+                example.parentElement.append(...factory.childNodes);
+            });
+
+            setTimeout(foo, 500);
+
+            function foo() {
+                // document.querySelector('.box').classList.toggle('is-active', true);
+                transistor(function () {
+                    document.querySelectorAll('.foo:last-child').forEach(function (original) {
+                        const factory = document.createElement('DIV');
+                        factory.innerHTML = original.outerHTML;
+                        original.parentElement.prepend(...factory.childNodes);
+                    });
+                });
+                // setTimeout(bar, 300);
+            }
+
+            function bar() {
+                // document.querySelector('.box').classList.toggle('is-active', false);
+                transistor(function () {
+                    document.querySelectorAll('.foo').forEach(function (/** @type {HTMLElement} */ box) {
+                        box.classList.remove('is-active');
+                        // box.style.marginLeft = '0';
+                        // box.style.width = '90%';
+                    });
+                });
+                // setTimeout(foo, 1500);
+            }
+
+        });
+    </script>
+</body>
+
+</html>
