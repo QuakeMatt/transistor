@@ -1,0 +1,24 @@
+{
+  "name": "transistor",
+  "version": "1.0.0",
+  "description": "FLIP-based animation library.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -cw"
+  },
+  "author": "Matthew Lawrence-Stubley <quakematt@outlook.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "rollup": "^3.10.0",
+    "rollup-plugin-typescript2": "^0.34.1",
+    "tslib": "^2.4.1",
+    "typescript": "^5.0.2"
+  }
+}
