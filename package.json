@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -cw"
+    "watch": "rollup -cw --watch.buildDelay 200"
   },
   "author": "Matthew Lawrence-Stubley <quakematt@outlook.com>",
   "license": "MIT",
