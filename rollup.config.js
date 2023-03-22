@@ -1,4 +1,6 @@
+import { join } from 'path';
 import { readFileSync } from 'fs';
+import { tmpdir } from 'os';
 import typescript from 'typescript';
 import typescriptPlugin from 'rollup-plugin-typescript2';
 
@@ -29,6 +31,7 @@ export default {
     plugins: [
         typescriptPlugin({
             typescript: typescript,
+            cacheRoot: join(tmpdir(), pkg.name, 'rollup-plugin-typescript2')
         }),
     ],
 }
