@@ -28,6 +28,18 @@
             padding: 1rem 0;
             position: relative;
             width: 12rem;
+
+            margin-left: 2rem;
+        }
+
+        .foo.is-active {
+            margin-left: 4rem;
+            width: 24rem;
+        }
+
+        .foo.is-expanded {
+            gap: 2rem;
+            padding: 2rem 0;
         }
 
         .bar {
@@ -59,6 +71,18 @@
         .foo.is-active .bar:nth-child(3) {
             align-self: flex-start;
         }
+
+        .bar:nth-child(4) {
+            margin-left: 10rem
+        }
+
+        .foo.is-active .bar:nth-child(4) {
+            margin-left: 8rem;
+        }
+
+        .bar:nth-child(5) {
+            align-self: flex-end;
+        }
     </style>
 </head>
 
@@ -71,6 +95,8 @@
         </div>
         <div class="example__demo">
             <div data-transistor class="foo">
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
                 <div data-transistor class="bar"></div>
                 <div data-transistor class="bar"></div>
                 <div data-transistor class="bar"></div>
@@ -111,7 +137,18 @@
                     });
                 });
 
-                // tick(0);
+                // setTimeout(bar, 500);
+            }
+
+            function bar() {
+
+                transistor.flip(function () {
+                    document.querySelectorAll('.foo').forEach(function (/** @type {HTMLElement} */ foo) {
+                        foo.classList.add('is-expanded');
+                        // foo.style.gap = '2rem';
+                        // foo.style.padding = '2rem 0';
+                    });
+                });
             }
 
         });

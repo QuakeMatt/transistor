@@ -17,6 +17,8 @@ export interface TransistorOptions {
     // timer?: Function,
 }
 
+const FREEZE = false;
+
 export function createTransistor(options: TransistorOptions = {}): Transistor {
 
     const graph = createGraph(options.root ?? document.documentElement);
@@ -30,6 +32,7 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
     let now: number = performance.now();
 
     requestAnimationFrame(function _tick(time: number) {
+        FREEZE ? (time = 0.0) :
         tick(now = time);
         requestAnimationFrame(_tick);
     });
@@ -56,6 +59,7 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
             throw new Error('build already active');
         }
 
+        animator.reset();
         builder = createTweenBuilder(graph);
 
     }
@@ -66,11 +70,11 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
             throw new Error('no active builder');
         }
 
-        console.log('now = ', now);
         builder.build(tweens, now);
         builder = undefined;
 
-        tick(0);
+        // console.log(tweens);
+        FREEZE && tick(0);
 
     }
 
