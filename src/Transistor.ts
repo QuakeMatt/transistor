@@ -1,5 +1,6 @@
 import { createAnimator } from "./Animator";
 import { createGraph } from "./Graph";
+import { TimerFactory, createTimer } from "./Timer";
 import { TweenCollection } from "./Tween";
 import { TweenBuilder, createTweenBuilder } from "./TweenBuilder";
 
@@ -7,17 +8,15 @@ export type FlipFunction = () => void;
 
 export interface Transistor {
     (mutate: FlipFunction): void;
-    readonly prepare: () => void;
-    readonly execute: () => void;
-    readonly flip: (mutate: FlipFunction) => void;
+    prepare(): void;
+    execute(): void;
+    flip(mutate: FlipFunction): void;
 }
 
 export interface TransistorOptions {
-    root?: HTMLElement,
-    // timer?: Function,
+    root?: Element,
+    timer?: TimerFactory,
 }
-
-const FREEZE = false;
 
 export function createTransistor(options: TransistorOptions = {}): Transistor {
 
@@ -29,13 +28,7 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
     let builder: TweenBuilder | undefined;
 
-    let now: number = performance.now();
-
-    requestAnimationFrame(function _tick(time: number) {
-        FREEZE ? (time = 0.0) :
-        tick(now = time);
-        requestAnimationFrame(_tick);
-    });
+    let time: number = (options.timer ?? createTimer)(tick);
 
     return Object.assign(flip.bind(null), {
         prepare,
@@ -43,14 +36,10 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
         flip,
     });
 
-    function tick(time: number) {
+    function tick(_time: number): void {
 
-        animator.tick(time);
+        animator.tick(time = _time);
 
-        // console.log(graph.getRoot());
-        // graph.forEach(function (node) {
-        //     console.log({node});
-        // });
     }
 
     function prepare(): void {
@@ -70,11 +59,11 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
             throw new Error('no active builder');
         }
 
-        builder.build(tweens, now);
+        builder.build(tweens, time);
         builder = undefined;
 
         // console.log(tweens);
-        FREEZE && tick(0);
+        // FREEZE && tick(0);
 
     }
 
