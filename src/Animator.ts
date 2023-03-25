@@ -41,11 +41,17 @@ export function createAnimator(graph: Graph, tweens: TweenCollection): Animator 
             let elapsed = Math.max(0.0, Math.min((time - tween.time) / duration, 1.0));
             let progress = 1.0 - easing(elapsed);
 
-            dx += ((tween.start.rectangle.x - tween.start.parent.x) - (tween.end.rectangle.x - tween.end.parent.x)) * progress;
-            dy += ((tween.start.rectangle.y - tween.start.parent.y) - (tween.end.rectangle.y - tween.end.parent.y)) * progress;
+            // dx += ((tween.start.rectangle.x - tween.start.parent.x) - (tween.end.rectangle.x - tween.end.parent.x)) * progress;
+            // dy += ((tween.start.rectangle.y - tween.start.parent.y) - (tween.end.rectangle.y - tween.end.parent.y)) * progress;
 
-            dw += (tween.start.rectangle.width - tween.end.rectangle.width) * progress;
-            dh += (tween.start.rectangle.height - tween.end.rectangle.height) * progress;
+            dx += tween.dx * progress;
+            dy += tween.dy * progress;
+
+            // dw += (tween.start.rectangle.width - tween.end.rectangle.width) * progress;
+            // dh += (tween.start.rectangle.height - tween.end.rectangle.height) * progress;
+
+            dw += tween.dw * progress;
+            dh += tween.dh * progress;
 
             tw = tween.end.rectangle.width;
             th = tween.end.rectangle.height;
@@ -64,7 +70,11 @@ export function createAnimator(graph: Graph, tweens: TweenCollection): Animator 
         rx = rx * rw - rx;
         ry = ry * rh - ry;
 
-        element.setAttribute('style', `transform: translate(${rx}px, ${ry}px) scale(${rw}, ${rh}) translate(${dx}px, ${dy}px) scale(${tw}, ${th});`);
+        if (element.classList.contains('quxz')) {
+            element.setAttribute('style', `transform: translate(${rx}px, ${ry}px) scale(${rw}, ${rh});`);
+        } else {
+            element.setAttribute('style', `transform: translate(${rx}px, ${ry}px) scale(${rw}, ${rh}) translate(${dx}px, ${dy}px) scale(${tw}, ${th});`);
+        }
 
         return createRectangle(dx, dy, tw, th);
 

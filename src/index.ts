@@ -1,6 +1,6 @@
 import { FlipFunction, Transistor, createTransistor } from "./Transistor";
 
-let instance: Transistor | undefined;
+let instance: Transistor;
 
 function getInstance(): Transistor {
     return instance ?? (instance = createTransistor());
