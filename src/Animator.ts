@@ -1,6 +1,6 @@
 import { Graph, GraphNode } from "./Graph";
-import { TweenCollection } from "./Tween";
-import { createBezierEasing } from "./easing/BezierEasing";
+import { SnaptshotManager } from "./SnapshotManager";
+import { TweenManager } from "./TweenManager";
 import { IDENTITY_RECTANGLE, Rectangle, createRectangle } from "./geometry/Rectangle";
 
 export interface Animator {
@@ -8,11 +8,11 @@ export interface Animator {
     reset(): void;
 }
 
-export function createAnimator(graph: Graph, tweens: TweenCollection): Animator {
+export function createAnimator(graph: Graph, snapshot: SnaptshotManager, tweens: TweenManager): Animator {
 
-    const duration = 1000.0;
+    // const duration = 1000.0;
 
-    const easing = createBezierEasing(0.25, 0.1, 0.25, 1.0);
+    // const easing = createBezierEasing(0.25, 0.1, 0.25, 1.0);
     // const easing = createBezierEasing(0.0, 0.0, 1.0, 1.0);
 
     return {
@@ -30,39 +30,39 @@ export function createAnimator(graph: Graph, tweens: TweenCollection): Animator 
         let dw = 0.0;
         let dh = 0.0;
 
-        let tw = 1.0;
-        let th = 1.0;
+        // let tw = 1.0;
+        // let th = 1.0;
 
         let rx = 0.0;
         let ry = 0.0;
 
-        (tweens.get(element) ?? []).forEach(function (tween) {
+        tweens.get(element).forEach(function (tween) {
 
-            let elapsed = Math.max(0.0, Math.min((time - tween.time) / duration, 1.0));
-            let progress = 1.0 - easing(elapsed);
+            // // let elapsed = Math.max(0.0, Math.min((time - tween.time) / duration, 1.0));
+            // // let progress = 1.0 - easing(elapsed);
 
-            // dx += ((tween.start.rectangle.x - tween.start.parent.x) - (tween.end.rectangle.x - tween.end.parent.x)) * progress;
-            // dy += ((tween.start.rectangle.y - tween.start.parent.y) - (tween.end.rectangle.y - tween.end.parent.y)) * progress;
+            // // dx += ((tween.start.rectangle.x - tween.start.parent.x) - (tween.end.rectangle.x - tween.end.parent.x)) * progress;
+            // // dy += ((tween.start.rectangle.y - tween.start.parent.y) - (tween.end.rectangle.y - tween.end.parent.y)) * progress;
 
-            dx += tween.dx * progress;
-            dy += tween.dy * progress;
+            // dx += tween.dx * progress;
+            // dy += tween.dy * progress;
 
-            // dw += (tween.start.rectangle.width - tween.end.rectangle.width) * progress;
-            // dh += (tween.start.rectangle.height - tween.end.rectangle.height) * progress;
+            // // dw += (tween.start.rectangle.width - tween.end.rectangle.width) * progress;
+            // // dh += (tween.start.rectangle.height - tween.end.rectangle.height) * progress;
 
-            dw += tween.dw * progress;
-            dh += tween.dh * progress;
+            // dw += tween.dw * progress;
+            // dh += tween.dh * progress;
 
-            tw = tween.end.rectangle.width;
-            th = tween.end.rectangle.height;
+            // tw = tween.end.rectangle.width;
+            // th = tween.end.rectangle.height;
 
-            rx = tween.end.rectangle.x - tween.end.parent.x;
-            ry = tween.end.rectangle.y - tween.end.parent.y;
+            // rx = tween.end.rectangle.x - tween.end.parent.x;
+            // ry = tween.end.rectangle.y - tween.end.parent.y;
 
         });
 
-        tw = (tw + dw) / tw;
-        th = (th + dh) / th;
+        const tw = (tw + dw) / tw;
+        const th = (th + dh) / th;
 
         const rw = 1.0 / carry.width;
         const rh = 1.0 / carry.height;

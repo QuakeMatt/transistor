@@ -3,13 +3,13 @@ interface Rectangle {}
 type Snapshot = WeakMap<Element, SnapshotNode>;
 
 interface SnapshotNode {
-    element: Element;
+    /* element: Element; */
     parent: Element;
     rectangle: Rectangle;
 }
 
 interface Tween {
-    element: Element;
+    /* element: Element; */
 
     dx: number;
     dy: number;

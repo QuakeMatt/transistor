@@ -23,3 +23,25 @@ export function createSnapshotFromElement(element: Element, parent: Element): Sn
         parent,
     );
 }
+
+// ---
+
+export interface SnaptshotNode {
+    /* element: Element, */
+    parent: Element | undefined;
+    rectangle: DOMRect;
+}
+
+export type Snaptshot = WeakMap<Element, SnaptshotNode>;
+
+export function createSnaptshot(): Snaptshot {
+    return new Map();
+}
+
+export function createSnaptshotNode(element: Element, parent?: Element): SnaptshotNode {
+    return {
+        /* element, */
+        parent,
+        rectangle: element.getBoundingClientRect(),
+    };
+}

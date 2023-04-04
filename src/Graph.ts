@@ -42,9 +42,9 @@ function generateGraph(root: Element): GraphNode {
 
     root.querySelectorAll<Element>(SELECTOR).forEach(function visit(element) {
 
-        if (false === element instanceof Element) {
-            return;
-        }
+        // if (false === element instanceof Element) {
+        //     return;
+        // }
 
         if (nodeMap.has(element)) {
             return nodeMap.get(element);

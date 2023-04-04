@@ -4,7 +4,7 @@
  * by Gaëtan Renaudeau 2014 - 2015 – MIT License
  */
 
-export type EasingFunction = (input: number) => number;
+import { EasingFunction } from "./Easing";
 
 // These values are established by empiricism with tests (tradeoff: performance VS precision)
 const NEWTON_ITERATIONS = 4;
@@ -108,7 +108,7 @@ export function createBezierEasing(mX1: number, mY1: number, mX2: number, mY2: n
         }
     }
 
-    return function BezierEasing(x: number) {
+    return function BezierEasing(x: number): number {
         // Because JavaScript number are imprecise, we should guarantee the extremes are right.
         if (x === 0 || x === 1) {
             return x;

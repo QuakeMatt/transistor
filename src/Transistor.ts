@@ -1,8 +1,9 @@
 import { createAnimator } from "./Animator";
 import { createGraph } from "./Graph";
+import { createSnaptshotManager } from "./SnapshotManager";
 import { TimerFactory, createTimer } from "./Timer";
-import { TweenCollection } from "./Tween";
 import { TweenBuilder, createTweenBuilder } from "./TweenBuilder";
+import { createTweenManager } from "./TweenManager";
 
 export type FlipFunction = () => void;
 
@@ -22,9 +23,11 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
     const graph = createGraph(options.root ?? document.documentElement);
 
-    const tweens: TweenCollection = new WeakMap();
+    const tweens = createTweenManager();
 
-    const animator = createAnimator(graph, tweens);
+    const snapshot = createSnaptshotManager();
+
+    const animator = createAnimator(graph, snapshot, tweens);
 
     let builder: TweenBuilder | undefined;
 

@@ -112,18 +112,18 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            const transistor = window.transistor;
+            // const transistor = window.transistor;
 
-            // window.tick = function () {};
+            window.tick = function () {};
 
-            // const transistor = window.transistor.create({
-            //     timer: function (fn) {
-            //         window.tick = fn;
-            //         return 0;
-            //     }
-            // });
+            const transistor = window.transistor.create({
+                timer: function (fn) {
+                    window.tick = fn;
+                    return 0;
+                }
+            });
 
-            // tick(0);
+            tick(0);
 
             document.querySelectorAll('.example__demo').forEach(function (example) {
                 const factory = document.createElement('DIV');
@@ -141,6 +141,8 @@
                         foo.classList.add('is-active');
                     });
                 });
+
+                tick(0);
 
                 // setTimeout(bar, 500);
             }
