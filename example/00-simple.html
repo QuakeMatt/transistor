@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style type="text/css">
+        :root {
+            font-size: 20px;
+        }
+
+        .example__demo {
+            position: relative;
+        }
+
+        .foo {
+            background-color: red;
+
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+            justify-content: flex-start;
+
+            padding: 1rem 0;
+            position: relative;
+            width: 12rem;
+
+            margin-left: 2rem;
+        }
+
+        .foo.is-active {
+            margin-left: 4rem;
+            width: 24rem;
+        }
+
+        .foo.is-expanded {
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .foo.is-active .bar {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .bar {
+            background-color: green;
+            height: 2rem;
+            width: 2rem;
+        }
+
+        .bar:nth-child(1) {
+            align-self: flex-start;
+        }
+
+        .foo.is-active .bar:nth-child(1) {
+            align-self: flex-end;
+        }
+
+        .bar:nth-child(2) {
+            align-self: center;
+        }
+
+        .foo.is-active .bar:nth-child(2) {
+            align-self: center;
+        }
+
+        .bar:nth-child(3) {
+            align-self: flex-end;
+        }
+
+        .foo.is-active .bar:nth-child(3) {
+            align-self: flex-start;
+        }
+
+        .bar:nth-child(4) {
+            margin-left: 10rem
+        }
+
+        .foo.is-active .bar:nth-child(4) {
+            margin-left: 8rem;
+        }
+
+        .bar:nth-child(5) {
+            align-self: flex-end;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="example">
+        <div class="example__info">
+            <h1>Simple</h1>
+            <p>This is a simple example.</p>
+            <p>Yes it is.</p>
+        </div>
+        <div class="example__demo">
+            <div data-transistor class="foo">
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+            </div>
+        </div>
+    </div>
+    <script src="../dist/transistor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const transistor = window.transistor;
+
+            // window.tick = function () {};
+
+            // const transistor = window.transistor.create({
+            //     timer: function (fn) {
+            //         window.tick = fn;
+            //         return 0;
+            //     }
+            // });
+
+            // tick(0);
+
+            document.querySelectorAll('.example__demo').forEach(function (example) {
+                const factory = document.createElement('DIV');
+                factory.innerHTML = example.outerHTML;
+                factory.querySelectorAll('[data-transistor]').forEach(e => e.removeAttribute('data-transistor'));
+                example.parentElement.append(...factory.childNodes);
+            });
+
+            setTimeout(foo, 500);
+
+            function foo() {
+
+                transistor.flip(function () {
+                    document.querySelectorAll('.foo').forEach(function (/** @type {HTMLElement} */ foo) {
+                        foo.classList.add('is-active');
+                    });
+                });
+
+                // setTimeout(bar, 500);
+            }
+
+            function bar() {
+
+                transistor.flip(function () {
+                    document.querySelectorAll('.foo').forEach(function (/** @type {HTMLElement} */ foo) {
+                        foo.classList.add('is-expanded');
+                        // foo.style.gap = '2rem';
+                        // foo.style.padding = '2rem 0';
+                    });
+                });
+            }
+
+        });
+    </script>
+</body>
+
+</html>
