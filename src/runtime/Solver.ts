@@ -1,9 +1,9 @@
 import { createBezierEasing } from "../easing/BezierEasing";
 import { createEasing } from "../easing/Easing";
-import { KnownStates } from "../snapshot/KnownStates";
-import { Snapshot, createMutableSnapshot } from "../snapshot/Snapshot";
-import { createSnapshotPair } from "../snapshot/SnapshotPair";
-import { createStateFromGraphNode } from "../snapshot/State";
+import { KnownStates } from "../state/KnownStates";
+import { Snapshot, createMutableSnapshot } from "../state/Snapshot";
+import { createSnapshotPair } from "../state/SnapshotPair";
+import { createStateFromGraphNode } from "../state/State";
 import { createTweenFromScene } from "../tween/Tween";
 import { TweenManager } from "../tween/TweenManager";
 import { Graph } from "./Graph";
@@ -32,8 +32,6 @@ export function createSolver(graph: Graph, time: DOMHighResTimeStamp): Solver {
         const endSnapshot = createSnapshot(graph, allElements);
 
         allElements.forEach(function (element) {
-
-            // const startState = startSnapshot.get(element);
 
             const finalState = endSnapshot.get(element);
             if (null == finalState) {
@@ -67,15 +65,6 @@ export function createSolver(graph: Graph, time: DOMHighResTimeStamp): Solver {
             if (tween) {
                 tweenManager.add(element, tween);
             }
-
-            // const elementRectangle = finalState.rectangle;
-            // const parentRectangle = endSnapshot.get(parent)?.rectangle;
-
-            // if (elementRectangle && parentRectangle) {
-            //     knownStates.set(element, createRelativeRectangle(elementRectangle, parentRectangle))
-            // } else {
-            //     knownStates.delete(element);
-            // }
 
         });
 

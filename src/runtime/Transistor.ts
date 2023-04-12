@@ -1,7 +1,7 @@
 import { IDENTITY_TRANSFORM, Transform, createTransform } from "../geometry/Transform";
 import { createScheduler } from "../scheduler/FrameRequestScheduler";
 import { Scheduler } from "../scheduler/Scheduler";
-import { createKnownStates } from "../snapshot/KnownStates";
+import { createKnownStates } from "../state/KnownStates";
 import { createMutableDelta } from "../tween/Delta";
 import { createTweenManager } from "../tween/TweenManager";
 import { GraphNode, createGraph } from "./Graph";
@@ -45,15 +45,6 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
         const element = node.element;
         const myTweens = tweenManager.get(element);
-
-        // const myState = knownStates.get(element);
-        // if (null == myState) {
-        //     throw new Error('no last-known state');
-        // }
-
-        // const myRectangle = myState;
-        // if (null == myRectangle) {
-        //     throw new Error('no last-known rectangle');
         // }
 
         const myRectangle = knownStates.getRelativeRectangle(element);
