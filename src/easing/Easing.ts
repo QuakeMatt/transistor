@@ -2,6 +2,7 @@ import { EasingFunction } from "./EasingFunction";
 
 export interface Easing {
     readonly start: DOMHighResTimeStamp;
+    readonly end: number;
     readonly duration: number;
     readonly strategy: EasingFunction,
     ease(time: DOMHighResTimeStamp): number;
@@ -13,6 +14,7 @@ export function createEasing(start: DOMHighResTimeStamp, duration: number, strat
 
     return {
         start,
+        end,
         duration,
         strategy,
         ease,

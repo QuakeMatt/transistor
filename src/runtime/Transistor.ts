@@ -25,7 +25,7 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
     const graph = createGraph(options.root ?? document.documentElement);
 
-    const tweens = createTweenManager();
+    const tweenManager = createTweenManager();
 
     const knownStates = createKnownStates();
 
@@ -39,17 +39,24 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
         flip,
     });
 
-    function transformNode(node: GraphNode, time: DOMHighResTimeStamp, carry: Transform): void {
+    function transformNode(node: GraphNode, time: DOMHighResTimeStamp, carry: Transform): number {
+
+        let activeTweens = 0;
 
         const element = node.element;
-        const myTweens = tweens.get(element);
+        const myTweens = tweenManager.get(element);
 
-        const myState = knownStates.get(element);
-        if (null == myState) {
-            throw new Error('no last-known state');
-        }
+        // const myState = knownStates.get(element);
+        // if (null == myState) {
+        //     throw new Error('no last-known state');
+        // }
 
-        const myRectangle = myState.relative;
+        // const myRectangle = myState;
+        // if (null == myRectangle) {
+        //     throw new Error('no last-known rectangle');
+        // }
+
+        const myRectangle = knownStates.getRelativeRectangle(element);
         if (null == myRectangle) {
             throw new Error('no last-known rectangle');
         }
@@ -57,7 +64,9 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
         const accumulator = createMutableDelta();
 
         myTweens.forEach(function (tween) {
-            tween.apply(accumulator, time);
+            tween.apply(accumulator, time)
+                ? (activeTweens += 1)
+                : tweenManager.remove(tween);
         });
 
         const dw = (accumulator.rectangle.width + myRectangle.width) / myRectangle.width;
@@ -76,19 +85,23 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
         const myTransform = createTransform(dx, dy, dw, dh);
 
-        node.children.forEach(function (node) {
-            transformNode(node, time, myTransform);
-        });
+        return activeTweens + transformNodeChildren(node, time, myTransform);
+
+    }
+
+    function transformNodeChildren(node: GraphNode, time: DOMHighResTimeStamp, carry: Transform): number {
+
+        return node.children.reduce(function (activeTweens, node) {
+            return activeTweens + transformNode(node, time, carry);
+        }, 0);
 
     }
 
     function tick(time: DOMHighResTimeStamp): void {
 
-        graph.getRoot().children.forEach(function (node) {
-            transformNode(node, time, IDENTITY_TRANSFORM);
-        });
-
-        schedule(tick);
+        if (0 < transformNodeChildren(graph.getRoot(), time, IDENTITY_TRANSFORM)) {
+            schedule(tick);
+        }
 
     }
 
@@ -97,6 +110,8 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
         if (solver) {
             throw new Error('Solver already active');
         }
+
+        graph.forEach(n => n.element.setAttribute('style', '')); // FIXME
 
         solver = createSolver(graph, schedule(tick));
 
@@ -108,7 +123,7 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
             throw new Error('No active solver');
         }
 
-        solver.solve(tweens, knownStates);
+        solver.solve(tweenManager, knownStates);
         solver = undefined;
 
     }

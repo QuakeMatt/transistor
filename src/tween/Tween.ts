@@ -1,6 +1,6 @@
 import { Easing } from "../easing/Easing";
 import { MutableRectangle, Rectangle, createDeltaRectangle } from "../geometry/Rectangle";
-import { Snapshot } from "../snapshot/Snapshot";
+import { SnapshotPair } from "../snapshot/SnapshotPair";
 import { Delta, MutableDelta, createDelta } from "./Delta";
 
 export interface Tween {
@@ -8,11 +8,9 @@ export interface Tween {
     readonly parent: Element;
     readonly delta: Delta;
     readonly easing: Easing;
+    readonly snapshot: SnapshotPair;
 
-    readonly startSnapshot: Snapshot;
-    readonly finalSnapshot: Snapshot;
-
-    apply(delta: MutableDelta, time: DOMHighResTimeStamp): void;
+    apply(delta: MutableDelta, time: DOMHighResTimeStamp): boolean;
     reframe(parent: Element): void;
 }
 
@@ -21,9 +19,7 @@ export function createTween(
     parent: Element,
     delta: Delta,
     easing: Easing,
-
-    startSnapshot: Snapshot,
-    finalSnapshot: Snapshot,
+    snapshot: SnapshotPair,
 ): Tween {
 
     const self = {
@@ -31,36 +27,78 @@ export function createTween(
         parent,
         delta,
         easing,
-
-        startSnapshot,
-        finalSnapshot,
-
+        snapshot,
         apply,
         reframe,
     };
 
     return self;
 
-    function apply(accumulator: MutableDelta, time: DOMHighResTimeStamp): void {
+    function apply(accumulator: MutableDelta, time: DOMHighResTimeStamp): boolean {
+
+        if (time >= self.easing.end) {
+            return false;
+        }
 
         const progress = 1.0 - self.easing.ease(time);
 
         applyRectangleTween(accumulator.rectangle, self.delta.rectangle, progress);
 
+        return true;
+
     }
 
     function reframe(parent: Element): void {
+
+        if (parent === self.parent) {
+            return;
+        }
+
+        console.group('reframing tween');
+        console.log({tween: self, oldParent: self.parent, newParent: parent});
+
+        const reframed = createTweenFromScene(
+            self.element,
+            parent,
+            self.easing,
+            self.snapshot,
+        );
+
+        console.log({reframed});
+
+        if (reframed) {
+            self.delta = reframed.delta;
+        }
+
+        console.groupEnd();
+
     }
 
 }
 
-export function createTweenFromSnapshots(
+export function createTweenFromScene(
     element: Element,
+    parent: Element,
     easing: Easing,
-    startSnapshot: Snapshot,
-    finalSnapshot: Snapshot,
-): Tween | undefined {
+    snapshot: SnapshotPair,
+): Tween {
 
+    /* */
+    return createTween(
+        element,
+        parent,
+        createDelta(
+            createDeltaRectangle(
+                snapshot.start.getRelativeRectangle(element, parent),
+                snapshot.end.getRelativeRectangle(element, parent),
+            ),
+        ),
+        easing,
+        snapshot,
+    );
+    /* */
+
+    /*
     const elementStartState = startSnapshot.get(element);
     if (null == elementStartState) {
         throw new Error('no elementStartState');
@@ -71,23 +109,56 @@ export function createTweenFromSnapshots(
         throw new Error('no elementFinalState');
     }
 
-    const parent = elementFinalState.parent;
-    if (null == parent) {
-        return undefined;
+    const parentStartState = startSnapshot.get(parent);
+    if (null == parentStartState) {
+        throw new Error('no parentStartState');
     }
 
-    const startRectangle = elementStartState.relative;
-    if (null == startRectangle) {
-        throw new Error('no startRectangle');
+    const parentFinalState = finalSnapshot.get(parent);
+    if (null == parentFinalState) {
+        throw new Error('no parentFinalState');
     }
 
-    const finalRectangle = elementFinalState.relative;
-    if (null == finalRectangle) {
-        throw new Error('no finalRectangle');
+    const elementStartRectangle = elementStartState.rectangle;
+    if (null == elementStartRectangle) {
+        throw new Error('no elementStartRectangle');
     }
+
+    const elementFinalRectangle = elementFinalState.rectangle;
+    if (null == elementFinalRectangle) {
+        throw new Error('no elementFinalRectangle');
+    }
+
+    const parentStartRectangle = parentStartState.rectangle;
+    if (null == parentStartRectangle) {
+        throw new Error('no parentStartRectangle');
+    }
+
+    const parentFinalRectangle = parentFinalState.rectangle;
+    if (null == parentFinalRectangle) {
+        throw new Error('no parentFinalRectangle');
+    }
+
+    // const parent = forceParent ?? elementFinalState.parent;
+    // if (null == parent) {
+    //     return undefined;
+    // }
+
+    // const startRectangle = elementStartState.relative;
+    // if (null == startRectangle) {
+    //     throw new Error('no startRectangle');
+    // }
+
+    // const finalRectangle = elementFinalState.relative;
+    // if (null == finalRectangle) {
+    //     throw new Error('no finalRectangle');
+    // }
 
     const delta = createDelta(
-        createDeltaRectangle(startRectangle, finalRectangle),
+        createDeltaRectangle(
+            createRelativeRectangle(elementStartRectangle, parentStartRectangle),
+            createRelativeRectangle(elementFinalRectangle, parentFinalRectangle),
+        ),
     );
 
     return createTween(
@@ -95,9 +166,9 @@ export function createTweenFromSnapshots(
         parent,
         delta,
         easing,
-        startSnapshot,
-        finalSnapshot,
+        scene,
     );
+    /* */
 
 }
 

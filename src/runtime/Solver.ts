@@ -1,12 +1,14 @@
 import { createBezierEasing } from "../easing/BezierEasing";
 import { createEasing } from "../easing/Easing";
-import { Rectangle, createRectangleFromElement } from "../geometry/Rectangle";
 import { KnownStates } from "../snapshot/KnownStates";
-import { Snapshot, createSnapshotBuilder } from "../snapshot/Snapshot";
-import { createState } from "../snapshot/State";
-import { createTweenFromSnapshots } from "../tween/Tween";
+import { Snapshot, createMutableSnapshot } from "../snapshot/Snapshot";
+import { createSnapshotPair } from "../snapshot/SnapshotPair";
+import { createStateFromGraphNode } from "../snapshot/State";
+import { createTweenFromScene } from "../tween/Tween";
 import { TweenManager } from "../tween/TweenManager";
-import { Graph, GraphNode } from "./Graph";
+import { Graph } from "./Graph";
+
+type ElementSet = Set<Element>;
 
 export interface Solver {
     solve(tweens: TweenManager, states: KnownStates): void;
@@ -15,63 +17,81 @@ export interface Solver {
 export function createSolver(graph: Graph, time: DOMHighResTimeStamp): Solver {
 
     const easing = createEasing(time, 1000.0, createBezierEasing(0.25, 0.1, 0.25, 1.0));
+    const easing_ = createEasing(time, 1000.0, t => t);
 
-    const elements = new Set<Element>();
+    const allElements: ElementSet = new Set();
 
-    const startSnapshot = collectSnapshots();
+    const startSnapshot = createSnapshot(graph, allElements);
 
     return {
         solve,
     };
 
-    function solve(tweens: TweenManager, states: KnownStates): void {
+    function solve(tweenManager: TweenManager, knownStates: KnownStates): void {
 
-        const finalSnapshot = collectSnapshots();
+        const endSnapshot = createSnapshot(graph, allElements);
 
-        elements.forEach(function (element) {
+        allElements.forEach(function (element) {
 
-            const startState = startSnapshot.get(element);
-            const finalState = finalSnapshot.get(element);
+            // const startState = startSnapshot.get(element);
 
-            const tween = createTweenFromSnapshots(
-                element,
-                easing,
-                startSnapshot,
-                finalSnapshot,
-            );
-
-            if (tween) {
-                tweens.add(element, tween);
+            const finalState = endSnapshot.get(element);
+            if (null == finalState) {
+                throw new Error('no finalState');
             }
 
-            finalState
-                ? states.set(element, finalState)
-                : states.delete(element);
+            knownStates.set(element, finalState);
+
+            const parent = finalState.parent;
+            if (null == parent) {
+                return null;
+            }
+
+            const scene = createSnapshotPair(
+                startSnapshot,
+                endSnapshot,
+            );
+
+            const tween = createTweenFromScene(
+                element,
+                parent,
+                easing,
+                scene,
+            );
+
+            const finalParent = finalState?.parent;
+            if (finalParent) {
+                tweenManager.get(element).forEach(t => t.reframe(finalParent));
+            }
+
+            if (tween) {
+                tweenManager.add(element, tween);
+            }
+
+            // const elementRectangle = finalState.rectangle;
+            // const parentRectangle = endSnapshot.get(parent)?.rectangle;
+
+            // if (elementRectangle && parentRectangle) {
+            //     knownStates.set(element, createRelativeRectangle(elementRectangle, parentRectangle))
+            // } else {
+            //     knownStates.delete(element);
+            // }
 
         });
 
     }
 
-    function collectSnapshots(): Snapshot {
+    function createSnapshot(graph: Graph, allElements: ElementSet): Snapshot {
 
-        const snapshot = createSnapshotBuilder();
-        visitGraphNode(graph.getRoot());
-        return snapshot;
+        const snapshot = createMutableSnapshot();
 
-        function visitGraphNode(node: GraphNode, parent?: Element, parentRectangle?: Rectangle): void {
-
+        graph.forEach(function (node): void {
             const element = node.element;
-            const elementRectangle = createRectangleFromElement(element);
+            snapshot.set(element, createStateFromGraphNode(node));
+            allElements.add(element);
+        });
 
-            snapshot.set(element, createState(element, parent, elementRectangle, parentRectangle));
-
-            elements.add(element);
-
-            node.children.forEach(function (node) {
-                visitGraphNode(node, element, elementRectangle);
-            });
-
-        }
+        return snapshot;
 
     }
 
