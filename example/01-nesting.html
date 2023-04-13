@@ -115,6 +115,8 @@
                     document.querySelectorAll('.foo').forEach(function (/** @type {HTMLElement} */ foo) {
                         foo.classList.add('is-active');
                     });
+                }).then(function (x) {
+                    bar();
                 });
 
                 // setTimeout(bar, 300);

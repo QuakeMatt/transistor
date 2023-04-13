@@ -10,12 +10,12 @@ function prepare(): void {
     getInstance().prepare();
 }
 
-function execute(): void {
-    getInstance().execute();
+function execute(): Promise<Element[]> {
+    return getInstance().execute();
 }
 
-function flip(mutate: FlipFunction): void {
-    getInstance().flip(mutate);
+function flip(mutate: FlipFunction): Promise<Element[]> {
+    return getInstance().flip(mutate);
 }
 
 export default Object.assign(flip.bind(null), {

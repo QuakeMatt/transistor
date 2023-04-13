@@ -12,6 +12,7 @@ export interface Tween {
 
     apply(delta: MutableDelta, time: DOMHighResTimeStamp): boolean;
     reframe(parent: Element): void;
+    then<T>(onfulfilled: (value: Element) => T | PromiseLike<T>): Promise<T>;
 }
 
 export function createTween(
@@ -22,6 +23,12 @@ export function createTween(
     snapshot: SnapshotPair,
 ): Tween {
 
+    let resolve: (value: Element) => void;
+
+    const promise = new Promise<Element>(function (_resolve) {
+        resolve = _resolve;
+    });
+
     const self = {
         element,
         parent,
@@ -30,6 +37,7 @@ export function createTween(
         snapshot,
         apply,
         reframe,
+        then: promise.then.bind(promise),
     };
 
     return self;
@@ -37,6 +45,7 @@ export function createTween(
     function apply(accumulator: MutableDelta, time: DOMHighResTimeStamp): boolean {
 
         if (time >= self.easing.end) {
+            resolve(self.element);
             return false;
         }
 
@@ -54,7 +63,7 @@ export function createTween(
             return;
         }
 
-        const reframed = createTweenFromScene(
+        const reframed = createTweenFromSnapshot(
             self.element,
             parent,
             self.easing,
@@ -69,7 +78,7 @@ export function createTween(
 
 }
 
-export function createTweenFromScene(
+export function createTweenFromSnapshot(
     element: Element,
     parent: Element,
     easing: Easing,

@@ -12,8 +12,8 @@ export type FlipFunction = () => void;
 export interface Transistor {
     (mutate: FlipFunction): void;
     prepare(): void;
-    execute(): void;
-    flip(mutate: FlipFunction): void;
+    execute(): Promise<Element[]>;
+    flip(mutate: FlipFunction): Promise<Element[]>;
 }
 
 export interface TransistorOptions {
@@ -45,7 +45,6 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
         const element = node.element;
         const myTweens = tweenManager.get(element);
-        // }
 
         const myRectangle = knownStates.getRelativeRectangle(element);
         if (null == myRectangle) {
@@ -108,21 +107,27 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
     }
 
-    function execute(): void {
+    function execute(): Promise<Element[]> {
 
         if ( ! solver) {
             throw new Error('No active solver');
         }
 
-        solver.solve(tweenManager, knownStates);
+        const tweens = solver.solve(tweenManager, knownStates);
         solver = undefined;
+
+        if (0 < tweens.length) {
+            tick(tweens[0].easing.start);
+        }
+
+        return Promise.all(tweens);
 
     }
 
-    function flip(mutate: FlipFunction): void {
+    function flip(mutate: FlipFunction): Promise<Element[]> {
         prepare();
         mutate();
-        execute();
+        return execute();
     }
 
 }

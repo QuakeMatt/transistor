@@ -4,20 +4,19 @@ import { KnownStates } from "../state/KnownStates";
 import { Snapshot, createMutableSnapshot } from "../state/Snapshot";
 import { createSnapshotPair } from "../state/SnapshotPair";
 import { createStateFromGraphNode } from "../state/State";
-import { createTweenFromScene } from "../tween/Tween";
+import { Tween, createTweenFromSnapshot } from "../tween/Tween";
 import { TweenManager } from "../tween/TweenManager";
 import { Graph } from "./Graph";
 
 type ElementSet = Set<Element>;
 
 export interface Solver {
-    solve(tweens: TweenManager, states: KnownStates): void;
+    solve(tweens: TweenManager, states: KnownStates): Tween[];
 }
 
 export function createSolver(graph: Graph, time: DOMHighResTimeStamp): Solver {
 
     const easing = createEasing(time, 1000.0, createBezierEasing(0.25, 0.1, 0.25, 1.0));
-    const easing_ = createEasing(time, 1000.0, t => t);
 
     const allElements: ElementSet = new Set();
 
@@ -27,7 +26,9 @@ export function createSolver(graph: Graph, time: DOMHighResTimeStamp): Solver {
         solve,
     };
 
-    function solve(tweenManager: TweenManager, knownStates: KnownStates): void {
+    function solve(tweenManager: TweenManager, knownStates: KnownStates): Tween[] {
+
+        const newTweens: Tween[] = [];
 
         const endSnapshot = createSnapshot(graph, allElements);
 
@@ -45,16 +46,16 @@ export function createSolver(graph: Graph, time: DOMHighResTimeStamp): Solver {
                 return null;
             }
 
-            const scene = createSnapshotPair(
+            const snapshot = createSnapshotPair(
                 startSnapshot,
                 endSnapshot,
             );
 
-            const tween = createTweenFromScene(
+            const tween = createTweenFromSnapshot(
                 element,
                 parent,
                 easing,
-                scene,
+                snapshot,
             );
 
             const finalParent = finalState?.parent;
@@ -64,9 +65,12 @@ export function createSolver(graph: Graph, time: DOMHighResTimeStamp): Solver {
 
             if (tween) {
                 tweenManager.add(element, tween);
+                newTweens.push(tween);
             }
 
         });
+
+        return newTweens;
 
     }
 
