@@ -1,6 +1,22 @@
 // import { FlipFunction, Transistor, createTransistor } from "./runtime/Transistor";
 
-import { createTransistor } from "./runtime/Transistor";
+import { Transistor, TransistorOptions, createTransistor } from "./runtime/Transistor";
+import { createScheduler as callbackScheduler } from "./scheduler/CallableTickScheduler";
+import { createScheduler as frameRequestScheduler } from "./scheduler/FrameRequestScheduler";
+
+function create(options?: TransistorOptions): Transistor {
+
+    const instance = createTransistor(options);
+
+    return Object.assign(instance, {
+        create,
+        scheduler: {
+            frameRequest: frameRequestScheduler,
+            callback: callbackScheduler,
+        },
+    });
+
+}
 
 // let instance: Transistor;
 
@@ -27,4 +43,4 @@ import { createTransistor } from "./runtime/Transistor";
 //     flip,
 // });
 
-export default createTransistor();
+export default create();
