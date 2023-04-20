@@ -1,4 +1,6 @@
+import { Config } from "../config/Config";
 import { EasingFunction } from "./EasingFunction";
+import { createBezierEasing } from "./easing/BezierEasing";
 
 export interface Easing {
     readonly start: DOMHighResTimeStamp;
@@ -32,5 +34,15 @@ export function createEasing(start: DOMHighResTimeStamp, duration: number, strat
 
         return strategy((time - start) / duration);
     }
+
+}
+
+export function createEasingFromConfig(time: DOMHighResTimeStamp, config: Config) {
+
+    return createEasing(
+        time + config.delay,
+        config.duration,
+        createBezierEasing(0.25, 0.1, 0.25, 1.0),
+    );
 
 }

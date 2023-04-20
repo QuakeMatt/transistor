@@ -1,26 +1,30 @@
-import { FlipFunction, Transistor, createTransistor } from "./runtime/Transistor";
+// import { FlipFunction, Transistor, createTransistor } from "./runtime/Transistor";
 
-let instance: Transistor;
+import { createTransistor } from "./runtime/Transistor";
 
-function getInstance(): Transistor {
-    return instance ?? (instance = createTransistor());
-}
+// let instance: Transistor;
 
-function prepare(): void {
-    getInstance().prepare();
-}
+// function getInstance(): Transistor {
+//     return instance ?? (instance = createTransistor());
+// }
 
-function execute(): Promise<Element[]> {
-    return getInstance().execute();
-}
+// function prepare(): void {
+//     getInstance().prepare();
+// }
 
-function flip(mutate: FlipFunction): Promise<Element[]> {
-    return getInstance().flip(mutate);
-}
+// function execute(): Promise<Element[]> {
+//     return getInstance().execute();
+// }
 
-export default Object.assign(flip.bind(null), {
-    create: createTransistor,
-    prepare,
-    execute,
-    flip,
-});
+// function flip(mutate: FlipFunction): Promise<Element[]> {
+//     return getInstance().flip(mutate);
+// }
+
+// export default Object.assign(flip.bind(null), {
+//     create: createTransistor,
+//     prepare,
+//     execute,
+//     flip,
+// });
+
+export default createTransistor();

@@ -1,3 +1,5 @@
+import { PartialConfig } from "../config/Config";
+import { createDefaultConfigManager } from "../config/ConfigManager";
 import { IDENTITY_TRANSFORM, Transform, createTransform } from "../geometry/Transform";
 import { createScheduler } from "../scheduler/FrameRequestScheduler";
 import { Scheduler } from "../scheduler/Scheduler";
@@ -7,23 +9,28 @@ import { createTweenManager } from "../tween/TweenManager";
 import { GraphNode, createGraph } from "./Graph";
 import { Solver, createSolver } from "./Solver";
 
-export type FlipFunction = () => void;
+export type FlipFunction = (transistor: Transistor) => void;
 
 export interface Transistor {
     (mutate: FlipFunction): void;
-    prepare(): void;
-    execute(): Promise<Element[]>;
+    prepare(config?: PartialConfig): void;
+    execute(config?: PartialConfig): Promise<Element[]>;
     flip(mutate: FlipFunction): Promise<Element[]>;
+    configure(config: PartialConfig): Transistor;
+    configure(elements: Element[], config: PartialConfig): Transistor;
 }
 
 export interface TransistorOptions {
-    root?: Element,
-    scheduler?: Scheduler,
+    root?: Element;
+    scheduler?: Scheduler;
+    config?: PartialConfig;
 }
 
 export function createTransistor(options: TransistorOptions = {}): Transistor {
 
     const graph = createGraph(options.root ?? document.documentElement);
+
+    const configManager = createDefaultConfigManager(options.config);
 
     const tweenManager = createTweenManager();
 
@@ -33,11 +40,14 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
     let solver: Solver | undefined;
 
-    return Object.assign(flip.bind(null), {
+    const self = Object.assign(flip.bind(null), {
         prepare,
         execute,
         flip,
+        configure,
     });
+
+    return self;
 
     function transformNode(node: GraphNode, time: DOMHighResTimeStamp, carry: Transform): number {
 
@@ -71,7 +81,13 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
         const rx = myRectangle.x * (rw - 1.0);
         const ry = myRectangle.y * (rh - 1.0);
 
-        element.setAttribute('style', `transform: translate(${rx}px, ${ry}px) scale(${rw}, ${rh}) translate(${dx}px, ${dy}px) scale(${dw}, ${dh});`);
+        // element.setAttribute('style', `transform: translate(${rx}px, ${ry}px) scale(${rw}, ${rh}) translate(${dx}px, ${dy}px) scale(${dw}, ${dh});`);
+
+        const transformAttr = `translate(${rx}px, ${ry}px) scale(${rw}, ${rh}) translate(${dx}px, ${dy}px) scale(${dw}, ${dh})`;
+
+        (element instanceof HTMLElement)
+            ? element.style.transform = transformAttr
+            : element.setAttribute('style', `transform: ${transformAttr}`);
 
         const myTransform = createTransform(dx, dy, dw, dh);
 
@@ -95,38 +111,79 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
     }
 
-    function prepare(): void {
+    function prepare(config?: PartialConfig): void {
 
         if (solver) {
             throw new Error('Solver already active');
         }
 
-        graph.forEach(n => n.element.setAttribute('style', '')); // FIXME
+        graph.forEach(function (node) {
+            const element = node.element;
+            (element instanceof HTMLElement)
+                ? element.style.transform = ''
+                : element.setAttribute('style', '');
+        });
 
-        solver = createSolver(graph, schedule(tick));
+        solver = createSolver(graph, configManager.clone(config), schedule(tick));
 
     }
 
-    function execute(): Promise<Element[]> {
+    function execute(config?: PartialConfig): Promise<Element[]> {
 
         if ( ! solver) {
             throw new Error('No active solver');
         }
 
         const tweens = solver.solve(tweenManager, knownStates);
+        const time = solver.time;
         solver = undefined;
 
-        if (0 < tweens.length) {
-            tick(tweens[0].easing.start);
-        }
+        tick(time);
 
         return Promise.all(tweens);
 
     }
 
+    function configure(config: PartialConfig): Transistor;
+    function configure(elements: Element | Element[], config: PartialConfig): Transistor;
+    function configure(elements: Element | Iterable<Element> | PartialConfig | undefined, config?: PartialConfig): Transistor {
+
+        let cm = solver ? solver.config : configManager;
+
+        if (null == elements) {
+            throw new Error('no u');
+        }
+
+        if (elements instanceof Element) {
+            if (null == config) {
+                throw new Error('no u');
+            }
+            cm.configureElements([elements], config);
+            // elements = [elements];
+            // // const wah = elements;
+        }
+
+        else if (Symbol.iterator in elements) {
+            if (null == config) {
+                throw new Error('no u');
+            }
+            cm.configureElements(elements, config);
+            // const bah = elements;
+        }
+
+        else {
+            cm.configure(elements);
+            // config = elements;
+            // elements = undefined;
+        }
+
+        return self;
+
+    }
+
     function flip(mutate: FlipFunction): Promise<Element[]> {
         prepare();
-        mutate();
+        mutate(self);
         return execute();
     }
 

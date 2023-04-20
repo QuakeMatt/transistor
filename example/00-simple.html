@@ -100,11 +100,11 @@
         </div>
         <div class="example__demo">
             <div data-transistor class="foo">
-                <div data-transistor class="bar"></div>
-                <div data-transistor class="bar"></div>
-                <div data-transistor class="bar"></div>
-                <div data-transistor class="bar"></div>
-                <div data-transistor class="bar"></div>
+                <div data-transistor='{"delay":300}' class="bar"></div>
+                <div data-transistor='{"delay":600}' class="bar"></div>
+                <div data-transistor='{"delay":900}' class="bar"></div>
+                <div data-transistor='{"delay":1200}' class="bar"></div>
+                <div data-transistor='{"delay":1500}' class="bar"></div>
             </div>
         </div>
     </div>
@@ -112,18 +112,22 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            const transistor = window.transistor;
+            // const transistor = window.transistor;
 
-            // window.tick = function () {};
+            // let tick = function () {};
 
             // const transistor = window.transistor.create({
-            //     timer: function (fn) {
-            //         window.tick = fn;
-            //         return 0;
-            //     }
+            //     // scheduler: window.transistor.scheduler.frameRequest,
+            //     scheduler: window.transistor.scheduler.fixedTime()
             // });
 
             // tick(0);
+
+            // console.log(transistor);
+
+            transistor.configure({
+                duration: 800,
+            });
 
             document.querySelectorAll('.example__demo').forEach(function (example) {
                 const factory = document.createElement('DIV');
@@ -136,9 +140,21 @@
 
             function foo() {
 
-                transistor.flip(function () {
+                transistor.flip(function (anim) {
                     document.querySelectorAll('.foo').forEach(function (/** @type {HTMLElement} */ foo) {
                         foo.classList.add('is-active');
+
+                        // anim.configure({
+                        //     duration: 123,
+                        // });
+
+                        anim.configure(bar, {
+                            duration: 800,
+                        });
+
+                        anim.configure(foo.querySelectorAll('.bar'), {
+                            stagger: 80,
+                        });
                     });
                 });
 

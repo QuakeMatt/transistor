@@ -1,7 +1,7 @@
-import { Easing } from "../easing/Easing";
 import { MutableRectangle, Rectangle, createDeltaRectangle } from "../geometry/Rectangle";
 import { SnapshotPair } from "../state/SnapshotPair";
 import { Delta, MutableDelta, createDelta } from "./Delta";
+import { Easing } from "./Easing";
 
 export interface Tween {
     readonly element: Element;

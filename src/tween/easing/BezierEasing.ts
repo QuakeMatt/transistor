@@ -4,7 +4,8 @@
  * by Gaëtan Renaudeau 2014 - 2015 – MIT License
  */
 
-import { EasingFunction } from "./EasingFunction";
+import { EasingFunction } from "../EasingFunction";
+import { createLinearEasing } from "./LinearEasing";
 
 // These values are established by empiricism with tests (tradeoff: performance VS precision)
 const NEWTON_ITERATIONS = 4;
@@ -65,17 +66,13 @@ function newtonRaphsonIterate(aX: number, aGuessT: number, mX1: number, mX2: num
     return aGuessT;
 }
 
-function LinearEasing(x: number): number {
-    return x;
-}
-
 export function createBezierEasing(mX1: number, mY1: number, mX2: number, mY2: number): EasingFunction {
     if (!(0 <= mX1 && mX1 <= 1 && 0 <= mX2 && mX2 <= 1)) {
         throw new Error('bezier x values must be in [0, 1] range');
     }
 
     if (mX1 === mY1 && mX2 === mY2) {
-        return LinearEasing;
+        return createLinearEasing();
     }
 
     // Precompute samples table

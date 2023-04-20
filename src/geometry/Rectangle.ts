@@ -41,4 +41,13 @@ export function createMutableRectangle(x?: number, y?: number, width?: number, h
 export function createRectangleFromElement(element: Element): Rectangle | undefined {
     const rect = element.getBoundingClientRect();
     return (0.0 === rect.x && 0.0 === rect.y && 0.0 === rect.width && 0.0 === rect.height) ? undefined : rect;
+    // if (0.0 === rect.x && 0.0 === rect.y && 0.0 === rect.width && 0.0 === rect.height) {
+    //     return undefined;
+    // }
+    // return createRectangle(
+    //     Math.round(rect.x),
+    //     Math.round(rect.y),
+    //     Math.round(rect.width),
+    //     Math.round(rect.height),
+    // );
 }
