@@ -5,10 +5,11 @@ import { Easing } from "./Easing";
 
 export interface Tween {
     readonly element: Element;
-    readonly parent: Element;
+    /* readonly parent: Element; */
     readonly delta: Delta;
     readonly easing: Easing;
-    readonly snapshot: SnapshotPair;
+    /* readonly snapshot: SnapshotPair; */
+    readonly snapshot?: SnapshotPair;
 
     apply(delta: MutableDelta, time: DOMHighResTimeStamp): boolean;
     reframe(parent: Element): void;

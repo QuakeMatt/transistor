@@ -4,6 +4,7 @@ import { Snapshot, createMutableSnapshot } from "../state/Snapshot";
 import { createSnapshotPair } from "../state/SnapshotPair";
 import { createStateFromGraphNode } from "../state/State";
 import { createEasingFromConfig } from "../tween/Easing";
+import { createPulse } from "../tween/Pulse";
 import { Tween, createTweenFromSnapshot } from "../tween/Tween";
 import { TweenManager } from "../tween/TweenManager";
 import { Graph } from "./Graph";
@@ -14,12 +15,15 @@ export interface Solver {
     readonly config: ConfigManager;
     readonly time: DOMHighResTimeStamp;
     solve(tweens: TweenManager, states: KnownStates): Tween[];
+    pulse(elements: Iterable<Element>): void;
 }
 
 export function createSolver(graph: Graph, configManager: ConfigManager, time: DOMHighResTimeStamp): Solver {
 
     // const easing_ = createEasing(time, 1000.0, createBezierEasing(0.25, 0.1, 0.25, 1.0));
     // const easing = createEasing(time, 1000.0, easeInOutQuint);
+
+    const pulses = new Set<Element>();
 
     const allElements: ElementSet = new Set();
 
@@ -29,6 +33,7 @@ export function createSolver(graph: Graph, configManager: ConfigManager, time: D
         config: configManager,
         time,
         solve,
+        pulse,
     };
 
     function solve(tweenManager: TweenManager, knownStates: KnownStates): Tween[] {
@@ -75,10 +80,22 @@ export function createSolver(graph: Graph, configManager: ConfigManager, time: D
                 newTweens.push(tween);
             }
 
+            if (pulses.has(element)) {
+                const pulse = createPulse(element, tween, snapshot);
+                tweenManager.add(element, pulse);
+                newTweens.push(pulse);
+            }
+
         });
 
         return newTweens;
 
+    }
+
+    function pulse(elements: Iterable<Element>): void {
+        for (const element of elements) {
+            pulses.add(element);
+        }
     }
 
     function createSnapshot(graph: Graph, allElements: ElementSet): Snapshot {

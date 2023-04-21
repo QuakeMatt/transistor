@@ -17,7 +17,8 @@ export interface Transistor {
     execute(config?: PartialConfig): Promise<Element[]>;
     flip(mutate: FlipFunction): Promise<Element[]>;
     configure(config: PartialConfig): Transistor;
-    configure(elements: Element[], config: PartialConfig): Transistor;
+    configure(elements: Element | Iterable<Element>, config: PartialConfig): Transistor;
+    pulse(elements: Element | Iterable<Element>): Transistor;
 }
 
 export interface TransistorOptions {
@@ -45,6 +46,7 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
         execute,
         flip,
         configure,
+        pulse,
     });
 
     return self;
@@ -64,16 +66,34 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
         const accumulator = createMutableDelta();
 
         myTweens.forEach(function (tween) {
-            tween.apply(accumulator, time)
-                ? (activeTweens += 1)
-                : tweenManager.remove(tween);
+            if (tween.snapshot) {
+                tween.apply(accumulator, time)
+                    ? (activeTweens += 1)
+                    : tweenManager.remove(tween);
+            }
         });
 
-        const dw = (accumulator.rectangle.width + myRectangle.width) / myRectangle.width;
-        const dh = (accumulator.rectangle.height + myRectangle.height) / myRectangle.height;
+        let dw = (accumulator.rectangle.width + myRectangle.width) / myRectangle.width;
+        let dh = (accumulator.rectangle.height + myRectangle.height) / myRectangle.height;
 
-        const dx = accumulator.rectangle.x;
-        const dy = accumulator.rectangle.y;
+        let dx = accumulator.rectangle.x;
+        let dy = accumulator.rectangle.y;
+
+        const myTransform = createTransform(dx, dy, dw, dh);
+
+        myTweens.forEach(function (tween) {
+            if ( ! tween.snapshot) {
+                tween.apply(accumulator, time)
+                    ? (activeTweens += 1)
+                    : tweenManager.remove(tween);
+            }
+        });
+
+        dw = (accumulator.rectangle.width + myRectangle.width) / myRectangle.width;
+        dh = (accumulator.rectangle.height + myRectangle.height) / myRectangle.height;
+
+        dx = accumulator.rectangle.x;
+        dy = accumulator.rectangle.y;
 
         const rw = 1.0 / carry.width;
         const rh = 1.0 / carry.height;
@@ -88,8 +108,6 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
         (element instanceof HTMLElement)
             ? element.style.transform = transformAttr
             : element.setAttribute('style', `transform: ${transformAttr}`);
-
-        const myTransform = createTransform(dx, dy, dw, dh);
 
         return activeTweens + transformNodeChildren(node, time, myTransform);
 
@@ -145,7 +163,7 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
     }
 
     function configure(config: PartialConfig): Transistor;
-    function configure(elements: Element | Element[], config: PartialConfig): Transistor;
+    function configure(elements: Element | Iterable<Element>, config: PartialConfig): Transistor;
     function configure(elements: Element | Iterable<Element> | PartialConfig | undefined, config?: PartialConfig): Transistor {
 
         let cm = solver ? solver.config : configManager;
@@ -179,6 +197,17 @@ export function createTransistor(options: TransistorOptions = {}): Transistor {
 
         return self;
 
+    }
+
+    function pulse(elements: Element | Iterable<Element>): Transistor {
+
+        if ( ! solver) {
+            throw new Error('No active solver');
+        }
+
+        solver.pulse(elements instanceof Element ? [elements] : elements);
+
+        return self;
     }
 
     function flip(mutate: FlipFunction): Promise<Element[]> {
