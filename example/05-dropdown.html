@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style type="text/css">
+        :root {
+            font-size: 20px;
+        }
+
+        .example__demo {
+            position: relative;
+        }
+
+        button {
+            background: transparent;
+            border: 0 none;
+            color: inherit;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0;
+            text-align: left;
+        }
+
+        .accordion {
+            display: block;
+            width: 12rem;
+        }
+
+        .accordion__head {
+            display: block;
+            border-bottom: 4px solid rgba(127, 127, 127, 0.5);
+            padding: 0.5rem 1rem;
+            width: 100%;
+        }
+
+        .accordion__body {
+            display: none;
+        }
+
+        .accordion__item {
+            background: rgba(127, 127, 127, 0.1);
+            display: block;
+            padding: 0.5rem 1rem;
+            width: 100%;
+        }
+
+        .accordion__label {
+            display: block;
+            width: 100%;
+        }
+
+        .accordion__item:last-child {
+            padding-bottom: 0.75rem;
+        }
+
+        .accordion.is-active .accordion__body {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="example">
+        <div class="example__info">
+            <h1>Simple</h1>
+            <p>This is a simple example.</p>
+            <p>Yes it is.</p>
+        </div>
+        <div class="example__demo">
+            <div data-transistor class="accordion">
+                <button data-transistor class="accordion__head">Accordion A</button>
+                <div data-transistor class="accordion__body">
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option A</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option B</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option C</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option D</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option E</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option F</span>
+                    </button>
+                </div>
+            </div>
+            <div data-transistor class="accordion">
+                <button data-transistor class="accordion__head">Accordion B</button>
+                <div data-transistor class="accordion__body">
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option A</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option B</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option C</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option D</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option E</span>
+                    </button>
+                    <button data-transistor class="accordion__item">
+                        <span data-transistor class="accordion__label">Option F</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../dist/transistor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('.accordion__head').forEach(function (head) {
+                head.addEventListener('click', function (event) {
+                    toggle(head.closest('.accordion'));
+                });
+            });
+
+            function toggle(container) {
+                transistor.flip(function (anim) {
+                    container.classList.toggle('is-active');
+                });
+            }
+
+        });
+    </script>
+</body>
+
+</html>

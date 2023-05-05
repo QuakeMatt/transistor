@@ -86,7 +86,7 @@
                     for (let t = 0; t < DURATION; t++) {
                         tick(t * 1.0);
                     }
-                });
+                }, /* i === (CYCLES - 2) */);
 
                 if (i < CYCLES) {
                     requestAnimationFrame(next);
@@ -108,10 +108,12 @@
 
         });
 
-        function bench(name, fn) {
+        function bench(name, fn, doProfile) {
             console.group(name);
             const start = performance.now();
+            doProfile && console.profile(name);
             fn();
+            doProfile && console.profileEnd();
             const total = performance.now() - start;
             console.log(`Completed in %c${Math.round(total)}ms`, 'color: chocolate;');
             console.groupEnd();

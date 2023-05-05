@@ -46,6 +46,7 @@ export function createSolver(graph: Graph, configManager: ConfigManager, time: D
 
             const finalState = endSnapshot.get(element);
             if (null == finalState) {
+                return;
                 throw new Error('no finalState');
             }
 

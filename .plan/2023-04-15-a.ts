@@ -33,11 +33,13 @@ interface Transistor {
     configure(elements: Element[], config: Config): Transistor;
     stagger(elements: Element[], stagger: number): Transistor;
     // pulse(elements: Element[], fn: Function): Transistor;
-    mutate(fn: Function): Transistor;
+    // mutate(fn: Function): Transistor;
+    mutate(elements: Element[], fn: Function): Transistor;
+    tween(elements: Element[], fn: Function): Transistor;
 }
 
-interface Mutator {
-}
+interface Mutator {}
+interface TweenBuilder {}
 
 // ---
 
@@ -57,7 +59,26 @@ flip(function (anim: Transistor) {
             // .pulse(items, function () {})
             // .mutate(function (mutator: Mutator) {
             // })
+            // .mutate(items, i => i.translate(-0.1, 0.0))
         ;
+
+        // anim.mutate(img, i => i.startAt(other));
+
+        anim.configure(container, {
+            enter: {
+                tween: anim.easing.slideDown,
+                clip: true,
+            },
+            leave: {
+                tween: anim.easing.slideUp,
+                clip: true,
+            },
+        });
+
+        anim.tween(items.reverse(), function (tween: TweenBuilder, i: number) {
+            tween.translate(0, -10);
+            tween.delay(i * 50);
+        });
 
         items.forEach(li => li.remove());
         items.sort();
@@ -65,3 +86,19 @@ flip(function (anim: Transistor) {
     });
 
 });
+
+// ---
+
+class TweenBuilder {
+    constructor(element: Element, config: Config, snapshot: SnapshotPair) {
+    }
+
+    translate(x: number, y: number): Tween {
+    }
+
+    delay(by: number): Tween {
+    }
+
+    build(): Tween {
+    }
+}

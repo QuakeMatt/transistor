@@ -1,0 +1,49 @@
+
+dom/
+    DOMTree
+    DOMTreeNode
+
+config/
+    class Config
+    class ConfigLayer
+    interface UserConfig
+
+core/
+    class Engine
+    class Transistor
+    --> class Solver <-- Processor?
+    interface Scheduler
+
+scheduler/
+    interface Scheduler
+    class CallableTickScheduler
+    class AnimationFrameScheduler
+    class SchedulerRegistry
+
+motion/
+    abstract Motion
+        class Tween extends Motion
+        class Pulse extends Motion
+    class Easing
+    class Delta
+    --> class MotionManager <-- ActiveMotions?
+    class TweenBuilder
+    class TweenReframer
+
+easing/
+    type EasingFuntion
+    interface EasingStrategy
+    class LinearEasing
+    class BezierEasing
+    class EasingRegistry
+
+state/
+    class KnownStates
+    class Snapshot
+    class SnapshotPair
+    class ElementState
+
+geometry/
+    class Point
+    class Rectangle
+    class Transform

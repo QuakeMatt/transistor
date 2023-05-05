@@ -19,3 +19,21 @@ delta
 
 snapshot
 state
+
+
+---
+
+
+motion
+
+
+
+Motion
+Tween implements Motion
+Bounce implements Motion
+
+
+---
+
+
+
