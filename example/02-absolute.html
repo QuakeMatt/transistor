@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style type="text/css">
+        :root {
+            font-size: 20px;
+        }
+
+        .example__demo {
+            position: relative;
+        }
+
+        .foo {
+            /* background-color: red; */
+            box-shadow: red 0 0 0 0.5rem inset;
+
+            position: relative;
+
+            margin-left: 2rem;
+            margin-top: 2rem;
+
+            height: 8rem;
+            width: 12rem;
+        }
+
+        .foo.is-active {
+            margin-left: 10rem;
+            /* width: 16rem; */
+        }
+
+        .bar {
+            /* background-color: orangered; */
+            box-shadow: red 0 0 0 0.5rem inset;
+
+            position: relative;
+
+            margin-left: 2rem;
+            margin-top: 2rem;
+
+            height: 8rem;
+            width: 12rem;
+        }
+
+        .bar.is-active {
+            /* margin-left: 10rem; */
+            /* width: 4rem; */
+        }
+
+        .baz,
+        .qux {
+            background-color: green;
+
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+
+            width: 2rem;
+            height: 2rem;
+
+            z-index: 1;
+        }
+
+        .qux {
+            background-color: purple;
+            top: auto;
+            bottom: 1rem;
+        }
+
+        /* .baz.is-active, */
+        .bar.is-active .baz,
+        .qux.is-active {
+            left: auto;
+            right: 1rem;
+        }
+
+        .foo.is-active .qux {
+        /* .bar.is-active .baz { */
+            left: 1rem;
+            right: auto;
+            /* width: 4rem; */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="example">
+        <div class="example__info">
+            <h1>Simple</h1>
+            <p>This is a simple example.</p>
+            <p>Yes it is.</p>
+        </div>
+        <div class="example__demo">
+            <div data-transistor class="foo">
+                <div data-transistor class="baz"></div>
+            </div>
+            <div data-transistor class="bar">
+                <div data-transistor class="qux"></div>
+            </div>
+        </div>
+    </div>
+    <script src="../dist/transistor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const transistor = window.transistor;
+
+            // window.tick = function () {};
+
+            // const transistor = window.transistor.create({
+            //     timer: function (fn) {
+            //         window.tick = fn;
+            //         return 0;
+            //     }
+            // });
+
+            // tick(0);
+
+            document.querySelectorAll('.example__demo').forEach(function (example) {
+                const factory = document.createElement('DIV');
+                factory.innerHTML = example.outerHTML;
+                factory.querySelectorAll('[data-transistor]').forEach(e => e.removeAttribute('data-transistor'));
+                example.parentElement.append(...factory.childNodes);
+            });
+
+            setTimeout(foo, 500);
+
+            function foo() {
+
+                transistor.flip(function () {
+                    document.querySelectorAll('.foo, .baz, .qux').forEach(function (/** @type {HTMLElement} */ foo) {
+                        foo.classList.add('is-active');
+                    });
+                });
+
+                setTimeout(bar, 300);
+            }
+
+            function bar() {
+
+                transistor.flip(function () {
+                    document.querySelectorAll('.foo').forEach(function (/** @type {HTMLElement} */ foo) {
+                        const bar = foo.nextElementSibling;
+                        const baz = Array.from(foo.children);
+                        const qux = Array.from(bar.children);
+                        foo.append(...qux);
+                        bar.append(...baz);
+                        bar.classList.add('is-active');
+
+
+                        // const children = Array.from(foo.children);
+                        // foo.nextElementSibling.append(...children);
+                        // foo.nextElementSibling.classList.add('is-active');
+                    });
+                });
+            }
+
+        });
+    </script>
+</body>
+
+</html>

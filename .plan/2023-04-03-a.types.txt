@@ -1,0 +1,43 @@
+
+runtime/
+    Tree
+    (TreeNode)
+    Orchestrator
+    Transistor
+
+snapshot/
+    Snapshot
+    (SnapshotNode)
+    State
+
+tween/
+    Delta
+    Tween
+    TweenManager
+
+easing/
+    Easing
+    (EasingFunction)
+    EasingRegistry
+    BezierEasing
+
+geometry/
+    Rectangle
+    Point
+
+timer/
+    Timer
+    DefaultTimer
+    FixedTimer
+
+
+
+---
+
+Composer
+Orchestrator <-
+Animator
+Processor
+ChangeSolver
+ChangeTracker
+DifferenceEngine

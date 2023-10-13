@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style type="text/css">
+        :root {
+            font-size: 20px;
+        }
+
+        .example__demo {
+            position: relative;
+        }
+
+        .foo {
+            background: rgba(127, 127, 127, 0.1);
+
+            align-items: flex-start;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1rem;
+            width: 19rem;
+        }
+
+        .bar {
+            background: green;
+
+            flex: 0 0 auto;
+
+            height: 2rem;
+            width: 2rem;
+        }
+
+        .baz {
+            background: rgba(127, 127, 127, 0.5);
+            height: 0.5rem;
+            width: 19rem;
+        }
+
+        .foo.is-active .bar {
+            width: 5rem;
+        }
+
+        .egg {
+            background: black;
+
+            margin-left: 1rem;
+            margin-top: 1rem;
+
+            height: 1rem;
+            width: 1rem;
+        }
+
+        .foo.is-active .egg {
+            margin-left: 3rem;
+            width: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="example">
+        <div class="example__info">
+            <h1>Simple</h1>
+            <p>This is a simple example.</p>
+            <p>Yes it is.</p>
+        </div>
+        <div class="example__demo">
+            <div data-transistor class="foo">
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+                <div data-transistor class="bar"></div>
+            </div>
+            <div data-transistor class="baz"></div>
+        </div>
+    </div>
+    <script src="../dist/transistor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const DELAY = 200;
+            const DURATION = 600;
+            const STAGGER = DURATION * 0.03;
+
+            // const transistor = window.transistor;
+
+            // // window.tick = function () {};
+
+            // // const transistor = window.transistor.create({
+            // //     timer: function (fn) {
+            // //         window.tick = fn;
+            // //         return 0;
+            // //     }
+            // // });
+
+            // // tick(0);
+
+            let sorting = [];
+
+            document.querySelectorAll('.bar').forEach(function (bar, i, {length}) {
+                bar.style.background = `hsl(${360 * i / length}, 80%, 50%)`;
+                bar.setAttribute('data-i', i);
+                sorting.push(0);
+                bar.innerHTML = '<div class="egg" data-transistor></div>';
+            });
+
+            document.querySelectorAll('.example__demo').forEach(function (example) {
+                const factory = document.createElement('DIV');
+                factory.innerHTML = example.outerHTML;
+                factory.querySelectorAll('[data-transistor]').forEach(e => e.removeAttribute('data-transistor'));
+                example.parentElement.append(...factory.childNodes);
+            });
+
+            transistor.configure({
+                duration: DURATION,
+            });
+
+            setTimeout(run, DELAY * 2);
+
+            function run() {
+
+                sorting = sorting.map(() => Math.random());
+
+                transistor.flip(function (anim) {
+
+                    document.querySelectorAll('.foo').forEach(function (foo) {
+
+                        if (foo.classList.contains('is-active')) {
+                            foo.classList.remove('is-active');
+                            anim.configure({delay: sorting.length * STAGGER - STAGGER});
+                        } else {
+                            foo.classList.add('is-active');
+                        }
+
+                        const children = Array.from(foo.querySelectorAll('.bar'));
+
+                        anim.configure(children, {
+                            delay: 0,
+                            stagger: STAGGER,
+                        });
+
+                        anim.configure(foo.querySelectorAll('.egg'), {
+                            delay: 0,
+                            stagger: STAGGER,
+                        });
+
+                        anim.pulse(children);
+
+                        children.forEach(c => c.remove());
+                        children.sort(function (a, b) {
+                            const ai = sorting[parseInt(a.getAttribute('data-i'))];
+                            const bi = sorting[parseInt(b.getAttribute('data-i'))];
+                            if (ai > bi) {
+                                return -1;
+                            }
+                            if (ai < bi) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+
+                        // children.forEach(function (bar) {
+                        //     const i = 0.5 + sorting[parseInt(bar.getAttribute('data-i'))] * 3.0;
+                        //     bar.style.width = `${i}rem`;
+                        //     bar.style.height = `${i}rem`;
+                        // });
+
+                        foo.append(...children);
+
+                    });
+
+                }).then(function (x) {
+                    setTimeout(run, DELAY);
+                });
+
+            }
+
+            // function bar() {
+
+            //     transistor.flip(function () {
+            //         document.querySelectorAll('.foo').forEach(function (/** @type {HTMLElement} */ foo) {
+            //             foo.classList.remove('is-active');
+            //             // foo.style.gap = '2rem';
+            //             // foo.style.padding = '2rem 0';
+            //         });
+            //     }, {
+
+            //     });
+            // }
+
+        });
+    </script>
+</body>
+
+</html>

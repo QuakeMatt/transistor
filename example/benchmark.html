@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Transistor Benchmark</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style type="text/css">
+        #container {
+            position: relative;
+        }
+
+        .box {
+            border-top: 1px solid transparent;
+            width: 1px;
+        }
+
+        .box.is-active {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container" data-transistor></div>
+    <script src="../dist/transistor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            let tick;
+
+            const transistor = window.transistor.create({
+                scheduler: window.transistor.scheduler.callback(t => tick = t),
+            });
+
+            const DURATION = 100;
+            const CYCLES = 10;
+            const BOX_A = 100;
+            const BOX_B = 10;
+
+            // transistor.configure({
+            //     duration: DURATION,
+            // });
+
+            // ...
+            console.group('info');
+            stat(BOX_A * BOX_B, 'elements');
+            stat(CYCLES, 'cycles');
+            stat(DURATION, 'ticks per cycle');
+            stat(DURATION * BOX_A * BOX_B, 'operations per cycle');
+            console.groupEnd();
+
+            // ...
+            document.querySelectorAll('#container').forEach(function (c) {
+                c.innerHTML = `<div class="box" data-transistor>${
+                    '<div class="box" data-transistor></div>'.repeat(BOX_B)
+                }</div>`.repeat(BOX_A);
+                c.getBoundingClientRect();
+            });
+
+            // ...
+            bench('prepare', function () {
+                transistor.prepare();
+            });
+
+            // ...
+            bench('mutate', function () {
+                document.querySelectorAll('#container .box').forEach(function (b) {
+                    b.classList.add('is-active');
+                });
+            });
+
+            // ...
+            bench('execute', function () {
+                transistor.execute();
+            });
+
+            // ...
+            let i = 0;
+            let total = 0.0;
+            requestAnimationFrame(function next() {
+
+                total += bench(`animate (${++i}/${CYCLES})`, function () {
+                    for (let t = 0; t < DURATION; t++) {
+                        tick(t * 1.0);
+                    }
+                }, /* i === (CYCLES - 2) */);
+
+                if (i < CYCLES) {
+                    requestAnimationFrame(next);
+                } else {
+                    finish(total);
+                }
+
+            });
+
+            function finish(total) {
+                const avg = total / CYCLES;
+                const ops = DURATION * BOX_A * BOX_B * CYCLES;
+                console.group('completed');
+                stat(total, 'for all cycles', 'ms');
+                stat(avg, 'average per cycle', 'ms');
+                stat(1000.0 * total / ops, 'normalized performance');
+                console.groupEnd();
+            }
+
+        });
+
+        function bench(name, fn, doProfile) {
+            console.group(name);
+            const start = performance.now();
+            doProfile && console.profile(name);
+            fn();
+            doProfile && console.profileEnd();
+            const total = performance.now() - start;
+            console.log(`Completed in %c${Math.round(total)}ms`, 'color: chocolate;');
+            console.groupEnd();
+            return total;
+        }
+
+        function stat(value, name, unit) {
+            console.log(`%c${value.toLocaleString() + (unit ?? '')}%c ${name}`, 'color: mediumseagreen;', 'color: initial;');
+        }
+    </script>
+</body>
+
+</html>
